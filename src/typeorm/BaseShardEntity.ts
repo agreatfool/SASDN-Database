@@ -7,11 +7,11 @@ import { DeepPartial } from 'typeorm/common/DeepPartial';
  */
 export class BaseShardEntity extends BaseEntity {
 
-    private _shardKey: any;
+    private _shardKey: string | number;
 
     private _databaseName: string;
 
-    constructor(shardKey?: any, databaseName?: string) {
+    constructor(shardKey?: string | number, databaseName?: string) {
         super();
         this._shardKey = shardKey || null;
         this._databaseName = databaseName || null;
@@ -42,7 +42,7 @@ export class BaseShardEntity extends BaseEntity {
      * Gets current entity's Repository.
      */
     static getRepository<T extends BaseEntity>(this: ObjectType<T>,
-        shardKey?: string, databaseName?: string): Repository<T> {
+        shardKey?: string | number, databaseName?: string): Repository<T> {
         const connection: Connection = DatabaseFactory.instance.getShardConnection(shardKey, databaseName);
         return connection.getRepository<T>(this);
     }
@@ -52,7 +52,7 @@ export class BaseShardEntity extends BaseEntity {
      */
     static findOne<T extends BaseEntity>(this: ObjectType<T>,
         optionsOrConditions?: FindOneOptions<T> | DeepPartial<T>,
-        shardKey?: string, databaseName?: string): Promise<T | undefined> {
+        shardKey?: string | number, databaseName?: string): Promise<T | undefined> {
         return (this as any).getRepository(shardKey, databaseName).findOne(optionsOrConditions as any);
     }
 
@@ -62,7 +62,7 @@ export class BaseShardEntity extends BaseEntity {
      */
     static findOneById<T extends BaseEntity>(this: ObjectType<T>,
         id: any, optionsOrConditions?: FindOneOptions<T> | DeepPartial<T>,
-        shardKey?: string, databaseName?: string): Promise<T | undefined> {
+        shardKey?: string | number, databaseName?: string): Promise<T | undefined> {
         return (this as any).getRepository(shardKey, databaseName).findOneById(id, optionsOrConditions as any);
     }
 }

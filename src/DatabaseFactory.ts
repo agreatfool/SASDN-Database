@@ -32,17 +32,21 @@ export class DatabaseFactory {
   // Public Static Methods
   // -------------------------------------------------------------------------
   static get instance(): DatabaseFactory {
-    return this._instance || new DatabaseFactory();
+    if(this._instance === undefined) {
+      this._instance = new DatabaseFactory();
+    }
+    return this._instance;
   }
   // -------------------------------------------------------------------------
   // Public Methods
   // -------------------------------------------------------------------------
 
   /**
-   * create Database cluster
+   * create Database cluster by options
    * @param options array of ClusterOptions
    */
   async createClusterConnections(options: Array<ClusterOptions>): Promise<Map<string, Connection[]>> {
+    const clusters = this.clusters;
     try {
       for (let cluster of options) {
         let dbCluster: DatabaseCluster = {
@@ -50,28 +54,29 @@ export class DatabaseFactory {
           type: cluster.type,
           connections: await createConnections(cluster.cluster)
         }
-        this.clusters.set(dbCluster.name, dbCluster.connections);
+        clusters.set(dbCluster.name, dbCluster.connections);
       }
     } catch (error) {
       throw error;
     }
-    return this.clusters;
+    return clusters;
   }
 
   /**
-   * 
+   * return Connection by optional shardkey and databaseName
    * @param shardKey 
    * @param databaseName 
    */
   getShardConnection(shardKey?: string, databaseName?: string): Connection {
-    if (this.clusters.size <= 0) {
+    const clusters = this.clusters;
+    if (clusters.size <= 0) {
       throw new Error('there is no connection cluster here');
     }
-    if (databaseName && !this.clusters.has(databaseName)) {
+    if (databaseName && !clusters.has(databaseName)) {
       throw new Error('can not found such DatabaseName');
     }
     const cluster: Connection[] = databaseName ?
-       this.clusters.get(databaseName) : [...this.clusters.values()][0];
+       clusters.get(databaseName) : [...clusters.values()][0];
     const index: number = shardKey ?
       Math.abs(parseInt(crc32(String(shardKey)), 16)) % cluster.length : 0;
     return cluster[index];
