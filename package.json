@@ -2,10 +2,7 @@
   "name": "sasdn-database",
   "version": "0.0.1",
   "description": "",
-  "main": "build/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ShenYiQian/SASDN-Database.git"
