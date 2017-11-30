@@ -53,7 +53,7 @@ export declare class BaseShardEntity extends BaseEntity {
   /**
    * Removes current entity from the database.
    */ 
-  remove(): Promive<this>;
+  remove(): Promise<this>;
 
   /**
    * Gets current entity's Repository.
