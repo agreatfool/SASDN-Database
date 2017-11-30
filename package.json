@@ -18,6 +18,7 @@
     "typeorm": "^0.1.6"
   },
   "devDependencies": {
-    "@types/crc": "^3.4.0"
+    "@types/crc": "^3.4.0",
+    "@types/node": "^8.0.53"
   }
 }
