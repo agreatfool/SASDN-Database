@@ -5,6 +5,8 @@
       "sourceMap": false,
       "rootDir": "src",
       "outDir": "build",
+      "declaration": true,
+      "declarationDir": "declarations",
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true
     },

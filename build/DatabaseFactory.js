@@ -12,25 +12,16 @@ const typeorm_1 = require("typeorm");
 const crc_1 = require("crc");
 class DatabaseFactory {
     constructor() {
-        // -------------------------------------------------------------------------
-        // Protected Properties
-        // -------------------------------------------------------------------------
         this.clusters = new Map();
     }
-    // -------------------------------------------------------------------------
-    // Public Static Methods
-    // -------------------------------------------------------------------------
     static get instance() {
         if (this._instance === undefined) {
             this._instance = new DatabaseFactory();
         }
         return this._instance;
     }
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
     /**
-     * create Database cluster by options
+     * Create Database cluster by options
      * @param options array of ClusterOptions
      */
     createClusterConnections(options) {
@@ -38,12 +29,7 @@ class DatabaseFactory {
             const clusters = this.clusters;
             try {
                 for (let cluster of options) {
-                    let dbCluster = {
-                        name: cluster.name,
-                        type: cluster.type,
-                        connections: yield typeorm_1.createConnections(cluster.cluster)
-                    };
-                    clusters.set(dbCluster.name, dbCluster.connections);
+                    clusters.set(cluster.name, yield typeorm_1.createConnections(cluster.cluster));
                 }
             }
             catch (error) {
@@ -68,7 +54,7 @@ class DatabaseFactory {
         const cluster = databaseName ?
             clusters.get(databaseName) : [...clusters.values()][0];
         const index = shardKey ?
-            Math.abs(parseInt(crc_1.crc32(String(shardKey)), 16)) % cluster.length : 0;
+            Math.abs(parseInt(crc_1.crc32(shardKey).toString(), 16)) % cluster.length : 0;
         return cluster[index];
     }
 }
