@@ -43,7 +43,7 @@ export class BaseShardEntity extends BaseEntity {
      */
     static getRepository<T extends BaseEntity>(this: ObjectType<T>,
         shardKey?: string | number, databaseName?: string): Repository<T> {
-        const connection: Connection = DatabaseFactory.instance.getShardConnection(shardKey, databaseName);
+        const connection: Connection = DatabaseFactory.instance.getShardConnection(shardKey.toString(), databaseName);
         return connection.getRepository<T>(this);
     }
 

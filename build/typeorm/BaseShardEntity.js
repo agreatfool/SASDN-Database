@@ -34,7 +34,7 @@ class BaseShardEntity extends typeorm_1.BaseEntity {
      * Gets current entity's Repository.
      */
     static getRepository(shardKey, databaseName) {
-        const connection = DatabaseFactory_1.DatabaseFactory.instance.getShardConnection(shardKey, databaseName);
+        const connection = DatabaseFactory_1.DatabaseFactory.instance.getShardConnection(shardKey.toString(), databaseName);
         return connection.getRepository(this);
     }
     /**
