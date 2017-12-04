@@ -5,3 +5,5 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./DatabaseFactory"));
 __export(require("./typeorm/BaseShardEntity"));
+__export(require("./typeorm/ShardTable"));
+__export(require("./typeorm/ShardTableStorage"));

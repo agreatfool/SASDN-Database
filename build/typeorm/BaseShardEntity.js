@@ -11,9 +11,6 @@ class BaseShardEntity extends typeorm_1.BaseEntity {
         this._shardKey = shardKey || null;
         this._databaseName = databaseName || null;
     }
-    // -------------------------------------------------------------------------
-    // Public Methods
-    // -------------------------------------------------------------------------
     /**
      * Saves current entity in the database.
      * If entity does not exist in the database then inserts, otherwise updates.
@@ -27,9 +24,6 @@ class BaseShardEntity extends typeorm_1.BaseEntity {
     remove() {
         return this.constructor.getRepository(this._shardKey, this._databaseName).remove(this);
     }
-    // -------------------------------------------------------------------------
-    // Public Static Methods
-    // -------------------------------------------------------------------------
     /**
      * Gets current entity's Repository.
      */

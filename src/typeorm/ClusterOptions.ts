@@ -1,4 +1,4 @@
-import { DatabaseType, ConnectionOptions } from "typeorm";
+import { DatabaseType, ConnectionOptions } from 'typeorm';
 
 export interface ClusterOptions {
 
