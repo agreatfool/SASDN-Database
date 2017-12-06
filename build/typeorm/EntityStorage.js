@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class EntityStorage {
     constructor() {
-        this.argsMap = new Map();
-        this.filesMap = new Map();
+        this._argsMap = {};
+        this._filesMap = {};
     }
     static get instance() {
         if (this._instance === undefined) {
@@ -14,14 +14,14 @@ class EntityStorage {
     /**
     * Use global space to storage ShardTableMetadataMap: <className, ShardTableMetadataArgs>
     */
-    shardTableMetadataStorage() {
-        return this.argsMap;
+    get shardTableMetadataStorage() {
+        return this._argsMap;
     }
     /**
      * Use global space to storage ShardTableFileMap: <className, absolutePath>
      */
-    shardTableFileStorage() {
-        return this.filesMap;
+    get shardTableFileStorage() {
+        return this._filesMap;
     }
 }
-exports.default = EntityStorage;
+exports.EntityStorage = EntityStorage;

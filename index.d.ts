@@ -1,12 +1,10 @@
 import { 
-  BaseEntity, 
-  Connection, 
+  DatabaseType, 
+  BaseEntity,
   ObjectType,
   Repository,
-  DatabaseType,
-  ConnectionOptions,
+  ConnectionOptions 
 } from 'typeorm';
-
 /**
  * Declare which Entity in which Connection.
  */
@@ -21,26 +19,6 @@ export interface ShardingStrategyInterface {
   entities: string[];
 }
 
-
-export interface DatabaseOptions {
-  /**
-   * Database name.
-   */
-  readonly name: string;
-  /**
-   * Database type.
-   */
-  readonly type: DatabaseType;
-  /**
-   * Database cluster.
-   */
-  readonly optionList: ConnectionOptions[];
-  /**
-   * If not define then use default ShardingStrategy(mod)
-   */
-  shardingStrategies?: ShardingStrategyInterface[];
-}
-
 export interface ShardTableMetadataArgs {
   /**
    * ClassName get by decorate
@@ -52,63 +30,92 @@ export interface ShardTableMetadataArgs {
   shardCount: number;
 }
 
+export interface DatabaseOptions {
+    /**
+     * Database name.
+     */
+    readonly name: string;
+    /**
+     * Database type.
+     */
+    readonly type: DatabaseType;
+    /**
+     * Database cluster.
+     */
+    readonly optionList: ConnectionOptions[];
+    /**
+     * If not define then use default ShardingStrategy(mod)
+     */
+    shardingStrategies?: ShardingStrategyInterface[];
+}
+
 /**
  * ShardTable Decorate
  * @param shardCount   shard table count
  */
 export declare function shardTable(shardCount: number): Function;
 
-export class EntityStorage {
-  private static _instance;
-  protected argsMap: Map<string, ShardTableMetadataArgs>;
-  protected filesMap: Map<string, string>;
-  static readonly instance: EntityStorage;
-  /**
-  * Use global space to storage ShardTableMetadataMap: <className, ShardTableMetadataArgs>
-  */
-  shardTableMetadataStorage(): Map<string, ShardTableMetadataArgs>;
-  /**
-   * Use global space to storage ShardTableFileMap: <className, absolutePath>
-   */
-  shardTableFileStorage(): Map<string, string>;
-}
-
-
 /**
  * Base abstract entity for all entities, used in ActiveRecord patterns.
  */
 export declare class BaseOrmEntity extends BaseEntity {
+    /**
+     * Gets current entity's Repository.
+     */
+    static getRepository<T extends BaseEntity>(this: ObjectType<T>): Repository<T>;
+}
+
+export declare class EntityStorage {
+  private static _instance;
+  private _argsMap;
+  private _filesMap;
+  static readonly instance: EntityStorage;
   /**
-   * Gets current entity's Repository.
+  * Use global space to storage ShardTableMetadataMap: <className, ShardTableMetadataArgs>
+  */
+  readonly shardTableMetadataStorage: {
+      [key: string]: ShardTableMetadataArgs;
+  };
+  /**
+   * Use global space to storage ShardTableFileMap: <className, absolutePath>
    */
-  static getRepository<T extends BaseEntity>(this: ObjectType<T>): Repository<T>;
+  readonly shardTableFileStorage: {
+      [key: string]: string;
+  };
 }
 
 export declare class DatabaseFactory {
-    protected readonly databaseEntitiesMap: Map<string, string>;
-    private static _instance;
-    private _hashringMap;
-    static readonly instance: DatabaseFactory;
-    readonly hashringMap: Map<string, any>;
-    /**
-     * Read given path to find ShardTable then copy & rewrite shardTableEntity
-     * @param entityPath
-     */
-    private checkShardTable(entityPath, classSet);
-    /**
-     * Create Database by options
-     * @param options array of ClusterOptions
-     * @param outputPath which path to create ConnectionMap.json
-     */
-    createDatabaseConnections(option: DatabaseOptions, outputPath?: string): Promise<any>;
-    /**
-     * Return Connection by optional shardkey and databaseName
-     */
-    getConnection<T extends BaseEntity>(entity: ObjectType<T>): Connection;
-    /**
-     * Get ShardEntity by className & shardKey
-     * @param entity
-     * @param shardKey
-     */
-    getEntity(entity: string | Function, shardKey?: string | number): any;
+  private static _instance;
+  private readonly _entityToConnection;
+  private readonly _shardHashMap;
+  static readonly instance: DatabaseFactory;
+  readonly shardHashMap: {
+      [key: string]: any;
+  };
+  readonly entityToConnection: {
+      [key: string]: string;
+  };
+  /**
+   * Read given path to find ShardTable then copy & rewrite shardTableEntity
+   * @param {string | Function} entityPath
+   * @param {Set<string>} classSet
+   */
+  private _checkShardTable(entityPath, classSet);
+  /**
+   * Create Database by option
+   * @param {DatabaseOptions} option DatabaseOptions
+   * @param {string} outputPath which path to create ConnectionMap.json
+   */
+  initialize(option: DatabaseOptions, outputPath?: string): Promise<any>;
+  /**
+   * Return Connection by Entity
+   * @param {BaseOrmEntity} entity
+   */
+  getConnection<T extends BaseEntity>(entity: ObjectType<T>): Connection;
+  /**
+   * Get Entity by given className & shardKey
+   * @param {string | Function} entity
+   * @param {string | number} shardKey
+   */
+  getEntity(entity: string | Function, shardKey?: string | number): any;
 }

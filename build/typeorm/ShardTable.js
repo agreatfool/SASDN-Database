@@ -11,7 +11,7 @@ function shardTable(shardCount) {
             className: target.name,
             shardCount,
         };
-        EntityStorage_1.default.instance.shardTableMetadataStorage().set(target.name, args);
+        EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
     };
 }
 exports.shardTable = shardTable;

@@ -1,4 +1,4 @@
-import { ShardTableMetadataArgs } from './ShardTableMetadataArgs';
+import { ShardTableMetadataArgs } from './interface/ShardTableMetadataArgs';
 import { EntityStorage } from './EntityStorage';
 
 /**
@@ -11,6 +11,6 @@ export function shardTable(shardCount: number): Function {
       className: target.name,
       shardCount,
     };
-    EntityStorage.instance.shardTableMetadataStorage().set(target.name, args);
+    EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
   };
 }

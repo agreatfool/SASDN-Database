@@ -1,11 +1,11 @@
-import { ShardTableMetadataArgs } from './ShardTableMetadataArgs';
+import { ShardTableMetadataArgs } from './interface/ShardTableMetadataArgs';
 
 export class EntityStorage {
   private static _instance: EntityStorage;
 
-  protected argsMap: Map<string, ShardTableMetadataArgs> = new Map();
+  private _argsMap: { [key: string]: ShardTableMetadataArgs } = {};
 
-  protected filesMap: Map<string, string> = new Map();
+  private _filesMap: { [key: string]: string } = {};
 
   static get instance(): EntityStorage {
     if (this._instance === undefined) {
@@ -17,15 +17,15 @@ export class EntityStorage {
   /**
   * Use global space to storage ShardTableMetadataMap: <className, ShardTableMetadataArgs>
   */
-  shardTableMetadataStorage(): Map<string, ShardTableMetadataArgs> {
-    return this.argsMap;
+  get shardTableMetadataStorage(): { [key: string]: ShardTableMetadataArgs } {
+    return this._argsMap;
   }
 
   /**
    * Use global space to storage ShardTableFileMap: <className, absolutePath>
    */
-  shardTableFileStorage(): Map<string, string> {
-    return this.filesMap;
+  get shardTableFileStorage(): { [key: string]: string } {
+    return this._filesMap;
   }
 }
 

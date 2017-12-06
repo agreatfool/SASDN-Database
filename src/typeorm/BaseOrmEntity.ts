@@ -1,5 +1,5 @@
 import { BaseEntity, ObjectType, Repository, Connection } from 'typeorm';
-import { DatabaseFactory } from '../DatabaseFactory';
+import { DatabaseFactory } from './DatabaseFactory';
 
 /**
  * Base abstract entity for all entities, used in ActiveRecord patterns.
