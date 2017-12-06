@@ -5,7 +5,7 @@ const EntityStorage_1 = require("./EntityStorage");
  * ShardTable Decorate
  * @param shardCount   shard table count
  */
-function shardTable(shardCount) {
+function ShardTable(shardCount) {
     return (target) => {
         const args = {
             className: target.name,
@@ -14,4 +14,4 @@ function shardTable(shardCount) {
         EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
     };
 }
-exports.shardTable = shardTable;
+exports.ShardTable = ShardTable;
