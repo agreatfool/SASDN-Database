@@ -1,5 +1,6 @@
 import { 
   DatabaseType, 
+  Connection,
   BaseEntity,
   ObjectType,
   Repository,
