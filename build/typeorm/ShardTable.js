@@ -1,19 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ShardTableStorage_1 = require("./ShardTableStorage");
+const EntityStorage_1 = require("./EntityStorage");
 /**
  * ShardTable Decorate
- * @param tablePath    use __filename
  * @param shardCount   shard table count
  */
-function shardTable(tablePath, shardCount) {
+function shardTable(shardCount) {
     return (target) => {
         const args = {
-            tablePath: tablePath,
             className: target.name,
-            shardCount: shardCount
+            shardCount,
         };
-        ShardTableStorage_1.shardTableMetadataStorage().set(target.name, args);
+        EntityStorage_1.default.instance.shardTableMetadataStorage().set(target.name, args);
     };
 }
 exports.shardTable = shardTable;

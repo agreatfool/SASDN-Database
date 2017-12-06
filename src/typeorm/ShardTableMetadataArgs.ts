@@ -1,8 +1,4 @@
-export default interface ShardTableMetadataArgs {
-  /**
-   * Table Path.
-   */
-  tablePath: string;
+export interface ShardTableMetadataArgs {
   /**
    * ClassName get by decorate
    */
