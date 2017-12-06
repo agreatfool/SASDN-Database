@@ -46,7 +46,7 @@ async function read() {
   let fail: number = 0;
   for (let i = 0; i < 10000; i++) {
     const shardKey = 1000000 + i;
-    const EntityModule = DatabaseFactory.instance.getEntity('GameGuid', shardKey);
+    const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
     try {
       let result = await EntityModule.findOne({ tableId: shardKey });
       success++;
@@ -64,7 +64,7 @@ async function write() {
   let fail = 0;
   for (let i = 0; i < 10000; i++) {
     const shardKey = 1000000 + i;
-    const EntityModule = DatabaseFactory.instance.getEntity('GameGuid', shardKey);
+    const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
     const entity = new EntityModule(shardKey);
     entity.tableId = shardKey;
     entity.tableDesc = shardKey.toString();
