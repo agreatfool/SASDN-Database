@@ -104,48 +104,44 @@ export class DatabaseFactory {
    * @param {string} outputPath which path to create ConnectionMap.json
    */
   async initialize(option: DatabaseOptions, outputPath?: string): Promise<any> {
-    try {
-      const entitySet: Set<string> = new Set();
-      for (const opts of option.optionList) {
-        for (const entity of opts.entities) {
-          await this._checkShardTable(entity, entitySet);
-        }
+    const entitySet: Set<string> = new Set();
+    for (const opts of option.optionList) {
+      for (const entity of opts.entities) {
+        await this._checkShardTable(entity, entitySet);
       }
-      const connections = await createConnections(option.optionList);
-      const connMap: any = {};
-      if (option.shardingStrategies) {
-        for (const strategy of option.shardingStrategies) {
-          if (!getConnectionManager().has(strategy.connctionName)) {
-            throw new Error('There is no such ConnectionName in ShardingStrategy');
-          }
-          for (const etyname of strategy.entities) {
-            if (!entitySet.has(etyname)) {
-              throw new Error('There is no such EntityName in ShardingStrategy');
-            }
-            this.entityToConnection[etyname] = strategy.connctionName;
-          }
-          connMap[strategy.connctionName] = strategy.entities;
+    }
+    const connections = await createConnections(option.optionList);
+    const connMap: any = {};
+    if (option.shardingStrategies) {
+      for (const strategy of option.shardingStrategies) {
+        if (!getConnectionManager().has(strategy.connctionName)) {
+          throw new Error('There is no such ConnectionName in ShardingStrategy');
         }
-      } else {
-        const entitiesClass = [...entitySet];
-        for (let i = 0; i < entitiesClass.length; i++) {
-          const index = (i + connections.length) % connections.length;
-          const connName = connections[index].name;
-          const className = entitiesClass[i];
-          this.entityToConnection[className] = connName;
-          if (connMap[connName] === undefined) {
-            connMap[connName] = [];
+        for (const etyname of strategy.entities) {
+          if (!entitySet.has(etyname)) {
+            throw new Error('There is no such EntityName in ShardingStrategy');
           }
-          (connMap[connName] as string[]).push(className);
+          this.entityToConnection[etyname] = strategy.connctionName;
         }
+        connMap[strategy.connctionName] = strategy.entities;
       }
-      // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
-      if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
-        LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json')
-          , JSON.stringify(connMap));
+    } else {
+      const entitiesClass = [...entitySet];
+      for (let i = 0; i < entitiesClass.length; i++) {
+        const index = (i + connections.length) % connections.length;
+        const connName = connections[index].name;
+        const className = entitiesClass[i];
+        this.entityToConnection[className] = connName;
+        if (connMap[connName] === undefined) {
+          connMap[connName] = [];
+        }
+        (connMap[connName] as string[]).push(className);
       }
-    } catch (error) {
-      throw error;
+    }
+    // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
+    if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
+      LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json')
+        , JSON.stringify(connMap));
     }
   }
 
