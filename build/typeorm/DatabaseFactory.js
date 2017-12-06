@@ -84,7 +84,7 @@ class DatabaseFactory {
                         continue;
                     }
                 }
-                this.shardHashMap.set(className, classHash);
+                this.shardHashMap[className] = classHash;
             }
             return;
         });
@@ -160,7 +160,7 @@ class DatabaseFactory {
         const args = EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[className];
         if (args) {
             shardKey = shardKey === undefined ? '' : shardKey;
-            className = this.shardHashMap.get(className).get(shardKey);
+            className = this.shardHashMap[className].get(shardKey);
         }
         const filePath = EntityStorage_1.EntityStorage.instance.shardTableFileStorage[className];
         if (filePath === undefined) {
