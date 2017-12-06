@@ -1,9 +1,9 @@
 import {
-  BaseEntity,
-  Connection,
-  createConnections,
-  getConnectionManager,
-  ObjectType,
+  BaseEntity as OrmLibBaseEntity,
+  Connection as OrmLibConnection,
+  createConnections as OrmLibCreateConnections,
+  getConnectionManager as OrmLibGetConnectionManager,
+  ObjectType as OrmLibObjectType,
 } from 'typeorm';
 import { DatabaseOptions } from './interface/DatabaseOptions';
 import { EntityStorage } from './EntityStorage';
@@ -110,11 +110,11 @@ export class DatabaseFactory {
         await this._checkShardTable(entity, entitySet);
       }
     }
-    const connections = await createConnections(option.optionList);
+    const connections = await OrmLibCreateConnections(option.optionList);
     const connMap: any = {};
     if (option.shardingStrategies) {
       for (const strategy of option.shardingStrategies) {
-        if (!getConnectionManager().has(strategy.connctionName)) {
+        if (!OrmLibGetConnectionManager().has(strategy.connctionName)) {
           throw new Error('There is no such ConnectionName in ShardingStrategy');
         }
         for (const etyname of strategy.entities) {
@@ -149,9 +149,9 @@ export class DatabaseFactory {
    * Return Connection by Entity
    * @param {BaseOrmEntity} entity
    */
-  getConnection<T extends BaseEntity>(entity: ObjectType<T>): Connection {
+  getConnection<T extends OrmLibBaseEntity>(entity: OrmLibObjectType<T>): OrmLibConnection {
     const connectionName = this.entityToConnection[(entity as any).name];
-    return getConnectionManager().get(connectionName);
+    return OrmLibGetConnectionManager().get(connectionName);
   }
 
   /**
