@@ -1,5 +1,6 @@
 import { DatabaseOptions, DatabaseFactory } from 'sasdn-database';
 import * as LibPath from 'path';
+import { ShardEntity } from './entities/ShardEntity';
 
 const databaseOptions: DatabaseOptions = {
   name: 'SQLite',
@@ -34,7 +35,7 @@ async function read() {
   let fail: number = 0;
   for (let i = 0; i < 100; i++) {
     const shardKey = 1000000 + i;
-    const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
+    const EntityModule = DatabaseFactory.instance.getEntity(ShardEntity.name, shardKey);
     try {
       const result = await EntityModule.findOne({ tableId: shardKey });
       console.log('read result = ', result);
@@ -52,7 +53,7 @@ async function write() {
   let fail = 0;
   for (let i = 0; i < 100; i++) {
     const shardKey = 1000000 + i;
-    const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
+    const EntityModule = DatabaseFactory.instance.getEntity(ShardEntity.name, shardKey);
     const entity = new EntityModule(shardKey);
     entity.tableId = shardKey;
     entity.tableDesc = shardKey.toString();
