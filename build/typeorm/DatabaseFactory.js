@@ -15,6 +15,7 @@ const LibPath = require("path");
 const ToolUtils_1 = require("../utils/ToolUtils");
 const glob_1 = require("glob");
 const HashRing = require('hashring');
+const debug = require('debug')('SASDN-Database');
 class DatabaseFactory {
     constructor() {
         // Find connection by Entity's class name. Map<className, connectionName>
@@ -60,7 +61,7 @@ class DatabaseFactory {
                     className = yield ToolUtils_1.ToolUtils.getClassName(content);
                 }
                 catch (error) {
-                    // console.log('caught finding className error = ', error);
+                    debug(`caught finding className error = ${error}`);
                     continue;
                 }
                 classSet.add(className);
@@ -71,7 +72,7 @@ class DatabaseFactory {
                     shardCount = yield ToolUtils_1.ToolUtils.getShardCount(content);
                 }
                 catch (error) {
-                    // console.log('caught finding table error = ', error);
+                    debug(`caught finding table error = ${error}`);
                     continue;
                 }
                 classSet.delete(className);
@@ -87,7 +88,7 @@ class DatabaseFactory {
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
                     }
                     catch (error) {
-                        // console.log('caught sharding table error = ', error);
+                        debug(`caught sharding table error = ${error}`);
                         continue;
                     }
                 }
@@ -104,26 +105,29 @@ class DatabaseFactory {
     initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const entitySet = new Set();
-            for (const opts of option.optionList) {
-                for (const entity of opts.entities) {
+            for (const connectionOption of option.connectionList) {
+                for (const entity of connectionOption.entities) {
                     yield this._checkShardTable(entity, entitySet);
                 }
             }
-            const connections = yield typeorm_1.createConnections(option.optionList);
+            debug('Check ShardTable finish');
+            const connections = yield typeorm_1.createConnections(option.connectionList);
+            debug('Create connection finish');
             const connMap = {};
             if (option.shardingStrategies) {
                 for (const strategy of option.shardingStrategies) {
                     if (!typeorm_1.getConnectionManager().has(strategy.connctionName)) {
                         throw new Error('There is no such ConnectionName in ShardingStrategy');
                     }
-                    for (const etyname of strategy.entities) {
-                        if (!entitySet.has(etyname)) {
+                    for (const entityName of strategy.entities) {
+                        if (!entitySet.has(entityName)) {
                             throw new Error('There is no such EntityName in ShardingStrategy');
                         }
-                        this.entityToConnection[etyname] = strategy.connctionName;
+                        this.entityToConnection[entityName] = strategy.connctionName;
                     }
                     connMap[strategy.connctionName] = strategy.entities;
                 }
+                debug('Read custom ShardingStrategy finish');
             }
             else {
                 const entitiesClass = [...entitySet];
@@ -137,10 +141,14 @@ class DatabaseFactory {
                     }
                     connMap[connName].push(className);
                 }
+                debug('Use default ShardingStrategy finish');
             }
             // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
             if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
-                LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json'), JSON.stringify(connMap));
+                LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json'), JSON.stringify(connMap, null, 2));
+            }
+            else {
+                debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
             }
         });
     }

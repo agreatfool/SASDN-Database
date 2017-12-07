@@ -13,6 +13,7 @@ import { ToolUtils } from '../utils/ToolUtils';
 import { glob } from 'glob';
 
 const HashRing = require('hashring');
+const debug = require('debug')('SASDN-Database');
 
 export class DatabaseFactory {
 
@@ -65,11 +66,10 @@ export class DatabaseFactory {
 
       let className;
       try {
-
         // find className
         className = await ToolUtils.getClassName(content);
       } catch (error) {
-        // console.log('caught finding className error = ', error);
+        debug(`caught finding className error = ${error}`);
         continue;
       }
       classSet.add(className);
@@ -80,7 +80,7 @@ export class DatabaseFactory {
         // find sharding count
         shardCount = await ToolUtils.getShardCount(content);
       } catch (error) {
-        // console.log('caught finding table error = ', error);
+        debug(`caught finding table error = ${error}`);
         continue;
       }
 
@@ -97,7 +97,7 @@ export class DatabaseFactory {
           classHash.add(newClassName);
           EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
         } catch (error) {
-          // console.log('caught sharding table error = ', error);
+          debug(`caught sharding table error = ${error}`);
           continue;
         }
       }
@@ -113,26 +113,29 @@ export class DatabaseFactory {
    */
   async initialize(option: DatabaseOptions, outputPath?: string): Promise<any> {
     const entitySet: Set<string> = new Set();
-    for (const opts of option.optionList) {
-      for (const entity of opts.entities) {
+    for (const connectionOption of option.connectionList) {
+      for (const entity of connectionOption.entities) {
         await this._checkShardTable(entity, entitySet);
       }
     }
-    const connections = await LibOrmCreateConnections(option.optionList);
+    debug('Check ShardTable finish');
+    const connections = await LibOrmCreateConnections(option.connectionList);
+    debug('Create connection finish');
     const connMap: any = {};
     if (option.shardingStrategies) {
       for (const strategy of option.shardingStrategies) {
         if (!LibOrmGetConnectionManager().has(strategy.connctionName)) {
           throw new Error('There is no such ConnectionName in ShardingStrategy');
         }
-        for (const etyname of strategy.entities) {
-          if (!entitySet.has(etyname)) {
+        for (const entityName of strategy.entities) {
+          if (!entitySet.has(entityName)) {
             throw new Error('There is no such EntityName in ShardingStrategy');
           }
-          this.entityToConnection[etyname] = strategy.connctionName;
+          this.entityToConnection[entityName] = strategy.connctionName;
         }
         connMap[strategy.connctionName] = strategy.entities;
       }
+      debug('Read custom ShardingStrategy finish');
     } else {
       const entitiesClass = [...entitySet];
       for (let i = 0; i < entitiesClass.length; i++) {
@@ -145,11 +148,14 @@ export class DatabaseFactory {
         }
         (connMap[connName] as string[]).push(className);
       }
+      debug('Use default ShardingStrategy finish');
     }
     // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
     if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
       LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json')
-        ,                 JSON.stringify(connMap));
+        ,                 JSON.stringify(connMap, null, 2));
+    } else {
+      debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
     }
   }
 

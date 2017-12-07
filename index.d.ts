@@ -43,7 +43,7 @@ export interface DatabaseOptions {
     /**
      * Database cluster.
      */
-    readonly optionList: ConnectionOptions[];
+    readonly connectionList: ConnectionOptions[];
     /**
      * If not define then use default ShardingStrategy(mod)
      */

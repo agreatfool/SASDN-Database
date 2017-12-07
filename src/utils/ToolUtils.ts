@@ -1,7 +1,8 @@
 import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
+import { copyFile } from 'fs-copy-file';
 
-const copyFile = require('fs-copy-file');
+const debug = require('debug')('SASDN-Database');
 
 export namespace ToolUtils {
   export function snakeCase(str: string): string {
@@ -55,7 +56,7 @@ export namespace ToolUtils {
           await LibFs.unlink(filePath);
         }
       } catch (error) {
-        console.log('caught error by unlink copy file = ', error);
+        debug(`caught error by unlink copy file = ${filePath}`);
       }
       return true;
     }

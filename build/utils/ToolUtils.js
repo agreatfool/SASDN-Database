@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const LibFs = require("mz/fs");
 const LibPath = require("path");
-const copyFile = require('fs-copy-file');
+const fs_copy_file_1 = require("fs-copy-file");
+const debug = require('debug')('SASDN-Database');
 var ToolUtils;
 (function (ToolUtils) {
     function snakeCase(str) {
@@ -71,7 +72,7 @@ var ToolUtils;
                     }
                 }
                 catch (error) {
-                    console.log('caught error by unlink copy file = ', error);
+                    debug(`caught error by unlink copy file = ${filePath}`);
                 }
                 return true;
             }
@@ -81,7 +82,7 @@ var ToolUtils;
     ToolUtils.isCopyFile = isCopyFile;
     function fsCopy(src, dest) {
         return new Promise((resolve, reject) => {
-            copyFile(src, dest, (err) => {
+            fs_copy_file_1.copyFile(src, dest, (err) => {
                 if (err) {
                     reject(err);
                 }
