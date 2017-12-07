@@ -14,14 +14,14 @@
   },
   "homepage": "https://github.com/ShenYiQian/SASDN-Database#readme",
   "dependencies": {
-    "fs-copy-file": "^1.0.2",
-    "glob": "^7.1.2",
-    "hashring": "^3.2.0",
-    "mz": "^2.7.0",
-    "typeorm": "^0.1.6"
+    "fs-copy-file": "1.0.2",
+    "glob": "7.1.2",
+    "hashring": "3.2.0",
+    "mz": "2.7.0",
+    "typeorm": "0.1.6"
   },
   "devDependencies": {
     "@types/mz": "0.0.32",
-    "@types/node": "^8.0.53"
+    "@types/node": "8.0.53"
   }
 }
