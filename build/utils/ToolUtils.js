@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const LibFs = require("mz/fs");
 const LibPath = require("path");
+const copyFile = require('fs-copy-file');
 var ToolUtils;
 (function (ToolUtils) {
     function snakeCase(str) {
@@ -80,7 +81,7 @@ var ToolUtils;
     ToolUtils.isCopyFile = isCopyFile;
     function fsCopy(src, dest) {
         return new Promise((resolve, reject) => {
-            LibFs.copyFile(src, dest, (err) => {
+            copyFile(src, dest, (err) => {
                 if (err) {
                     reject(err);
                 }

@@ -1,6 +1,7 @@
 import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
 import * as LibUtil from 'util';
+const copyFile = require('fs-copy-file');
 
 export namespace ToolUtils {
   export function snakeCase(str: string): string {
@@ -63,7 +64,7 @@ export namespace ToolUtils {
 
   export function fsCopy(src: LibFs.PathLike, dest: LibFs.PathLike): Promise<any> {
     return new Promise((resolve, reject) => {
-      LibFs.copyFile(src, dest, (err) => {
+      copyFile(src, dest, (err) => {
         if (err) {
           reject(err);
         }
