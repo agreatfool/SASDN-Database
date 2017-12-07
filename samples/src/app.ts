@@ -1,66 +1,29 @@
-import { DatabaseOptions, DatabaseFactory } from '../src';
+import { DatabaseOptions, DatabaseFactory } from 'sasdn-database';
 import * as LibPath from 'path';
 
 const databaseOptions: DatabaseOptions = {
-  name: 'mysql',
-  type: 'mysql',
-  // custom shardingStrategies
-  /*
-  shardingStrategies: [
-    {
-      connctionName: 'test_shard_0',
-      entities: [
-        'ShardEntity_0',
-        'ShardEntity_3',
-      ],
-    },
-    {
-      connctionName: 'test_shard_1',
-      entities: [
-        'ShardEntity_1',
-        'ShardEntity_4',
-      ],
-    },
-    {
-      connctionName: 'test_shard_2',
-      entities: [
-        'ShardEntity_2',
-      ],
-    },
-  ],
-  */
-  optionList: [
+  name: 'SQLite',
+  type: 'sqlite',
+  connectionList: [
     {
       name: 'test_shard_0',
-      type: 'mysql',
-      host: '127.0.0.1',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'test_shard_0',
-      synchronize: false,
+      type: 'sqlite',
+      database: 'db/test_shard_0.db',
+      synchronize: true,
       entities: [LibPath.join(__dirname, 'entities/*.js')],
     },
     {
       name: 'test_shard_1',
-      type: 'mysql',
-      host: '127.0.0.1',
-      port: 3307,
-      username: 'root',
-      password: 'root',
-      database: 'test_shard_1',
-      synchronize: false,
+      type: 'sqlite',
+      database: 'db/test_shard_1.db',
+      synchronize: true,
       entities: [LibPath.join(__dirname, 'entities/*.js')],
     },
     {
       name: 'test_shard_2',
-      type: 'mysql',
-      host: '127.0.0.1',
-      port: 3308,
-      username: 'root',
-      password: 'root',
-      database: 'test_shard_2',
-      synchronize: false,
+      type: 'sqlite',
+      database: 'db/test_shard_2.db',
+      synchronize: true,
       entities: [LibPath.join(__dirname, 'entities/*.js')],
     },
   ],
@@ -69,11 +32,12 @@ const databaseOptions: DatabaseOptions = {
 async function read() {
   let success: number = 0;
   let fail: number = 0;
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 100; i++) {
     const shardKey = 1000000 + i;
     const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
     try {
       const result = await EntityModule.findOne({ tableId: shardKey });
+      console.log('read result = ', result);
       success++;
     } catch (error) {
       fail++;
@@ -86,7 +50,7 @@ async function read() {
 async function write() {
   let success = 0;
   let fail = 0;
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 100; i++) {
     const shardKey = 1000000 + i;
     const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
     const entity = new EntityModule(shardKey);
@@ -94,6 +58,7 @@ async function write() {
     entity.tableDesc = shardKey.toString();
     try {
       const result = await entity.save();
+      console.log('write result = ', result);
       success++;
     } catch (error) {
       fail++;
@@ -105,7 +70,7 @@ async function write() {
 
 async function main(): Promise<any> {
   try {
-    await DatabaseFactory.instance.initialize(databaseOptions, __dirname);
+    await DatabaseFactory.instance.initialize(databaseOptions);
     console.log('create connections finish! please waiting for write');
     await write();
     await read();
