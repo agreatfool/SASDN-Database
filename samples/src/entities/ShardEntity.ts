@@ -1,6 +1,6 @@
 
 import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { BaseOrmEntity, ShardTable } from '../../lib';
+import { BaseOrmEntity, ShardTable } from '../../../build';
 
 @Entity('shard_table')
 @ShardTable(5)

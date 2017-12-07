@@ -1,4 +1,4 @@
-import { DatabaseOptions, DatabaseFactory } from '../lib';
+import { DatabaseOptions, DatabaseFactory } from '../../build';
 import * as LibPath from 'path';
 import { ShardEntity } from './entities/ShardEntity';
 
