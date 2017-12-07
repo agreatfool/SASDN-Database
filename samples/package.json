@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node build/app.js",
+    "start": "npm install && tsc && node build/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
