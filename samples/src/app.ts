@@ -1,4 +1,4 @@
-import { DatabaseOptions, DatabaseFactory } from 'sasdn-database';
+import { DatabaseOptions, DatabaseFactory } from '../lib';
 import * as LibPath from 'path';
 import { ShardEntity } from './entities/ShardEntity';
 
