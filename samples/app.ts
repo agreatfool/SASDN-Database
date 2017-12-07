@@ -4,6 +4,31 @@ import * as LibPath from 'path';
 const databaseOptions: DatabaseOptions = {
   name: 'mysql',
   type: 'mysql',
+  // custom shardingStrategies
+  /*
+  shardingStrategies: [
+    {
+      connctionName: 'test_shard_0',
+      entities: [
+        'ShardEntity_0',
+        'ShardEntity_3',
+      ],
+    },
+    {
+      connctionName: 'test_shard_1',
+      entities: [
+        'ShardEntity_1',
+        'ShardEntity_4',
+      ],
+    },
+    {
+      connctionName: 'test_shard_2',
+      entities: [
+        'ShardEntity_2',
+      ],
+    },
+  ],
+  */
   optionList: [
     {
       name: 'test_shard_0',
@@ -87,7 +112,7 @@ async function main() {
     await write();
     await read();
   } catch (error) {
-    
+
   }
 }
 
