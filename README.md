@@ -6,9 +6,15 @@ SASDN-Database是基于[Typeorm](https://github.com/typeorm/typeorm)的封装，
 
 ## 2. 功能
 
-### 2.1 分表
+### 2.1 ShardKey
 
-分表首先需要用户指定**ShardKey**，然后通过装饰器`ShardTable`定义所需分表的数量，插件会自动进行分表操作，对用户来说是无感知的。一张需要进行分表的`Entity`类似下面的代码：
+若需要使用分表功能，首先要了解什么是**ShardKey**， **ShardKey**是表中的一个字段，但是一定要保证唯一。插件读取此字段的值然后根据[一致性hash算法](https://fugangqiang.github.io/blog/posts/web/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95.html)去计算该条数据具体落在那一张分表上。用户只需在设计表时思考好今后使用哪一个字段并保证其唯一性即可。
+
+该字段在设计表结构时需要定义，在代码编写运行时会用到，在设置及Entity代码定义中不需要使用。
+
+### 2.2 分表
+
+当用户指定完**ShardKey**后，可以通过装饰器`ShardTable`定义所需分表的数量，插件会自动进行分表操作，对用户来说是无感知的。一张需要进行分表的`Entity`类似下面的代码：
 
 ```
 import { Entity, Column, PrimaryColumn } from 'typeorm';
@@ -25,9 +31,11 @@ export class ShardEntity extends BaseOrmEntity {  // 继承BaseOrmEntity
 }
 ```
 
-### 2.2 分库
+### 2.3 分库
 
-分库将根据用户给定的`DatabaseOptions`中的`shardingStrategies`字段读取用户希望那张表落于那个库上，若用户不指定则默认使用取余的方式将所有表散列到所有库上。自定义配置如下：
+分库将根据用户给定的`DatabaseOptions`中的`shardingStrategies`字段读取用户希望那张表落于那个库上，若用户不指定则默认使用取余的方式将所有表散列到所有库上。自定义配置如下，有两种情况需要注意：
+
+1. 有分表需求，则需要在原来的表名后添加`_${表号}`
 
 ```
  shardingStrategies: [ 
@@ -53,12 +61,34 @@ export class ShardEntity extends BaseOrmEntity {  // 继承BaseOrmEntity
     }, 
   ], 
 ```
+2. 无分表需求，则只需给定具体那张表落在那个库上即可
 
-### 2.3 内部原理
+```
+shardingStrategies: [ 
+    { 
+      connctionName: 'test_shard_0', 
+      entities: [ 
+        'GameUser',  
+      ], 
+    }, 
+    { 
+      connctionName: 'test_shard_1', 
+      entities: [ 
+        'GameBind', 
+        'GameGuid',
+      ], 
+    }, 
+    { 
+      connctionName: 'test_shard_2', 
+      entities: [ 
+        'GameInfo', 
+      ], 
+    }, 
+  ], 
+```
 
-分表是插件通过读取**ShardKey**后根据[hashring](https://github.com/3rd-Eden/node-hashring)进行一致性HASH计算得出该数据落在那一张分表上。
 
-而分库则使用反向查找的方式，根据表来定位落在哪一个库上，从而返回对应的链接。
+
 
 ## 3. 规范定义
 
