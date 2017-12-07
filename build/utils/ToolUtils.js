@@ -82,7 +82,7 @@ var ToolUtils;
     ToolUtils.isCopyFile = isCopyFile;
     function fsCopy(src, dest) {
         return new Promise((resolve, reject) => {
-            fs_copy_file_1.copyFile(src, dest, (err) => {
+            fs_copy_file_1.fs_copy_file(src, dest, (err) => {
                 if (err) {
                     reject(err);
                 }
