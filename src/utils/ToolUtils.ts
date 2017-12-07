@@ -1,6 +1,6 @@
 import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
-import * as LibUtil from 'util';
+
 const copyFile = require('fs-copy-file');
 
 export namespace ToolUtils {
@@ -21,7 +21,7 @@ export namespace ToolUtils {
     if (LibFs.existsSync(path)) {
       files = LibFs.readdirSync(path);
       for (const file of files) {
-        const curPath: string = path + "/" + file;
+        const curPath: string = path + '/' + file;
         if (LibFs.statSync(curPath).isDirectory()) { // recurse  
           deleteAll(curPath);
         } else { // delete file  
@@ -33,14 +33,14 @@ export namespace ToolUtils {
   }
 
   export async function getClassName(content: string): Promise<string> {
-    const classNameMatch = await ToolUtils.regExec(content, /class\s\b[A-Za-z0-9]+\b/);
+    const classNameMatch = await regExec(content, /class\s\b[A-Za-z0-9]+\b/);
     const className = classNameMatch.replace('class ', '');
     return className;
   }
 
   export async function getShardCount(content: string): Promise<number> {
-    const matchText = await ToolUtils.regExec(content, /\.ShardTable\([0-9]+\)/);
-    const numberMatch = await ToolUtils.regExec(matchText, /[0-9]+/);
+    const matchText = await regExec(content, /\.ShardTable\([0-9]+\)/);
+    const numberMatch = await regExec(matchText, /[0-9]+/);
     const shardCount: number = parseInt(numberMatch, 10);
     return shardCount;
   }
@@ -73,18 +73,19 @@ export namespace ToolUtils {
     });
   }
 
-  export async function copyNewFile(fileName: string, filePath: string,
-    rootPath: string, index: number): Promise<{ [key: string]: string }> {
+  export async function copyNewFile(fileName: string,
+                                    filePath: string, rootPath: string,
+                                    index: number): Promise<{ [key: string]: string }> {
     const newFileName = `${fileName}_${index}`;
     const newFilePath = LibPath.join(rootPath, `${newFileName}.js`);
-    await ToolUtils.fsCopy(filePath, newFilePath);
+    await fsCopy(filePath, newFilePath);
     return { newFileName, newFilePath };
   }
 
   export async function rewriteFile(className: string, content: string,
-    newFilePath: string, index: number): Promise<string> {
+                                    newFilePath: string, index: number): Promise<string> {
     const newClassName = `${className}_${index}`;
-    const snakeCaseTableName = ToolUtils.snakeCase(newClassName);
+    const snakeCaseTableName = snakeCase(newClassName);
     const tableNameExp: RegExp = new RegExp(/\.Entity\(\'\S+\'\)/);
     let newContent = content.replace(new RegExp(className, 'gm'), newClassName);
     newContent = newContent.replace(tableNameExp, `.Entity('${snakeCaseTableName}')`);

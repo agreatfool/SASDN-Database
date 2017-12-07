@@ -11,6 +11,7 @@ import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
 import { ToolUtils } from '../utils/ToolUtils';
 import { glob } from 'glob';
+
 const HashRing = require('hashring');
 
 export class DatabaseFactory {
@@ -39,11 +40,11 @@ export class DatabaseFactory {
 
   /**
    * Read given path to find ShardTable then copy & rewrite shardTableEntity
-   * @param {string | Function} entityPath 
-   * @param {Set<string>} classSet 
+   * @param {string | Function} entityPath
+   * @param {Set<string>} classSet
    */
   private async _checkShardTable(entityPath: string | Function,
-    classSet: Set<string>): Promise<any> {
+                                 classSet: Set<string>): Promise<any> {
     if (typeof (entityPath) === 'function') {
       return;
     }
@@ -68,7 +69,7 @@ export class DatabaseFactory {
         // find className
         className = await ToolUtils.getClassName(content);
       } catch (error) {
-        //console.log('caught finding className error = ', error);
+        // console.log('caught finding className error = ', error);
         continue;
       }
       classSet.add(className);
@@ -79,7 +80,7 @@ export class DatabaseFactory {
         // find sharding count
         shardCount = await ToolUtils.getShardCount(content);
       } catch (error) {
-        //console.log('caught finding table error = ', error);
+        // console.log('caught finding table error = ', error);
         continue;
       }
 
@@ -96,7 +97,7 @@ export class DatabaseFactory {
           classHash.add(newClassName);
           EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
         } catch (error) {
-          //console.log('caught sharding table error = ', error);
+          // console.log('caught sharding table error = ', error);
           continue;
         }
       }
@@ -148,7 +149,7 @@ export class DatabaseFactory {
     // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
     if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
       LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json')
-        , JSON.stringify(connMap));
+        ,                 JSON.stringify(connMap));
     }
   }
 

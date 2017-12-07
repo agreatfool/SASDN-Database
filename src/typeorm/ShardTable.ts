@@ -8,8 +8,8 @@ import { EntityStorage } from './EntityStorage';
 export function ShardTable(shardCount: number): Function {
   return (target: any) => {
     const args: ShardTableMetadataArgs = {
-      className: target.name,
       shardCount,
+      className: target.name,
     };
     EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
   };

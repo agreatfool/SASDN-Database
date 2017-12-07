@@ -73,9 +73,8 @@ async function read() {
     const shardKey = 1000000 + i;
     const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
     try {
-      let result = await EntityModule.findOne({ tableId: shardKey });
+      const result = await EntityModule.findOne({ tableId: shardKey });
       success++;
-      console.log(`read[${success}] success result = ${result}`);
     } catch (error) {
       fail++;
       console.log('on save caught error = ', error);
@@ -96,7 +95,6 @@ async function write() {
     try {
       const result = await entity.save();
       success++;
-      console.log(`write[${success}] success result = ${result}`);
     } catch (error) {
       fail++;
       console.log('on save caught error = ', error);
@@ -105,14 +103,14 @@ async function write() {
   }
 }
 
-async function main() {
+async function main(): Promise<any> {
   try {
     await DatabaseFactory.instance.initialize(databaseOptions, __dirname);
     console.log('create connections finish! please waiting for write');
     await write();
     await read();
   } catch (error) {
-
+    console.log('caught error at main error = ', error);
   }
 }
 
