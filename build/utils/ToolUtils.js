@@ -30,7 +30,7 @@ var ToolUtils;
         if (LibFs.existsSync(path)) {
             files = LibFs.readdirSync(path);
             for (const file of files) {
-                const curPath = path + "/" + file;
+                const curPath = path + '/' + file;
                 if (LibFs.statSync(curPath).isDirectory()) {
                     deleteAll(curPath);
                 }
@@ -44,7 +44,7 @@ var ToolUtils;
     ToolUtils.deleteAll = deleteAll;
     function getClassName(content) {
         return __awaiter(this, void 0, void 0, function* () {
-            const classNameMatch = yield ToolUtils.regExec(content, /class\s\b[A-Za-z0-9]+\b/);
+            const classNameMatch = yield regExec(content, /class\s\b[A-Za-z0-9]+\b/);
             const className = classNameMatch.replace('class ', '');
             return className;
         });
@@ -52,8 +52,8 @@ var ToolUtils;
     ToolUtils.getClassName = getClassName;
     function getShardCount(content) {
         return __awaiter(this, void 0, void 0, function* () {
-            const matchText = yield ToolUtils.regExec(content, /\.ShardTable\([0-9]+\)/);
-            const numberMatch = yield ToolUtils.regExec(matchText, /[0-9]+/);
+            const matchText = yield regExec(content, /\.ShardTable\([0-9]+\)/);
+            const numberMatch = yield regExec(matchText, /[0-9]+/);
             const shardCount = parseInt(numberMatch, 10);
             return shardCount;
         });
@@ -94,7 +94,7 @@ var ToolUtils;
         return __awaiter(this, void 0, void 0, function* () {
             const newFileName = `${fileName}_${index}`;
             const newFilePath = LibPath.join(rootPath, `${newFileName}.js`);
-            yield ToolUtils.fsCopy(filePath, newFilePath);
+            yield fsCopy(filePath, newFilePath);
             return { newFileName, newFilePath };
         });
     }
@@ -102,7 +102,7 @@ var ToolUtils;
     function rewriteFile(className, content, newFilePath, index) {
         return __awaiter(this, void 0, void 0, function* () {
             const newClassName = `${className}_${index}`;
-            const snakeCaseTableName = ToolUtils.snakeCase(newClassName);
+            const snakeCaseTableName = snakeCase(newClassName);
             const tableNameExp = new RegExp(/\.Entity\(\'\S+\'\)/);
             let newContent = content.replace(new RegExp(className, 'gm'), newClassName);
             newContent = newContent.replace(tableNameExp, `.Entity('${snakeCaseTableName}')`);

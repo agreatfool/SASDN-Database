@@ -60,7 +60,7 @@ class DatabaseFactory {
                     className = yield ToolUtils_1.ToolUtils.getClassName(content);
                 }
                 catch (error) {
-                    //console.log('caught finding className error = ', error);
+                    // console.log('caught finding className error = ', error);
                     continue;
                 }
                 classSet.add(className);
@@ -71,7 +71,7 @@ class DatabaseFactory {
                     shardCount = yield ToolUtils_1.ToolUtils.getShardCount(content);
                 }
                 catch (error) {
-                    //console.log('caught finding table error = ', error);
+                    // console.log('caught finding table error = ', error);
                     continue;
                 }
                 classSet.delete(className);
@@ -87,7 +87,7 @@ class DatabaseFactory {
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
                     }
                     catch (error) {
-                        //console.log('caught sharding table error = ', error);
+                        // console.log('caught sharding table error = ', error);
                         continue;
                     }
                 }

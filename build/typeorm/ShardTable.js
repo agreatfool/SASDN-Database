@@ -8,8 +8,8 @@ const EntityStorage_1 = require("./EntityStorage");
 function ShardTable(shardCount) {
     return (target) => {
         const args = {
-            className: target.name,
             shardCount,
+            className: target.name,
         };
         EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
     };
