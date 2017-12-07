@@ -54,7 +54,7 @@ export interface DatabaseOptions {
  * ShardTable Decorate
  * @param shardCount   shard table count
  */
-export declare function shardTable(shardCount: number): Function;
+export declare function ShardTable(shardCount: number): Function;
 
 /**
  * Base abstract entity for all entities, used in ActiveRecord patterns.
