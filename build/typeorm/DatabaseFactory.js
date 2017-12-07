@@ -54,8 +54,15 @@ class DatabaseFactory {
                 // find rootPath to copy sharding table file
                 const rootPath = pathParse.dir;
                 const content = yield LibFs.readFile(filePath, 'utf-8');
-                // find className
-                const className = yield ToolUtils_1.ToolUtils.getClassName(content);
+                let className;
+                try {
+                    // find className
+                    className = yield ToolUtils_1.ToolUtils.getClassName(content);
+                }
+                catch (error) {
+                    //console.log('caught finding className error = ', error);
+                    continue;
+                }
                 classSet.add(className);
                 EntityStorage_1.EntityStorage.instance.shardTableFileStorage[className] = filePath;
                 let shardCount = 0;

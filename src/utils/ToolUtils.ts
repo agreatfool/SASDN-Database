@@ -38,7 +38,7 @@ export namespace ToolUtils {
   }
 
   export async function getShardCount(content: string): Promise<number> {
-    const matchText = await ToolUtils.regExec(content, /\.shardTable\([0-9]+\)/);
+    const matchText = await ToolUtils.regExec(content, /\.ShardTable\([0-9]+\)/);
     const numberMatch = await ToolUtils.regExec(matchText, /[0-9]+/);
     const shardCount: number = parseInt(numberMatch, 10);
     return shardCount;

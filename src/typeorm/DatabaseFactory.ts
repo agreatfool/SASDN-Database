@@ -62,8 +62,15 @@ export class DatabaseFactory {
       const rootPath = pathParse.dir;
       const content = await LibFs.readFile(filePath, 'utf-8');
 
-      // find className
-      const className = await ToolUtils.getClassName(content);
+      let className;
+      try {
+
+        // find className
+        className = await ToolUtils.getClassName(content);
+      } catch (error) {
+        //console.log('caught finding className error = ', error);
+        continue;
+      }
       classSet.add(className);
       EntityStorage.instance.shardTableFileStorage[className] = filePath;
 

@@ -51,7 +51,7 @@ var ToolUtils;
     ToolUtils.getClassName = getClassName;
     function getShardCount(content) {
         return __awaiter(this, void 0, void 0, function* () {
-            const matchText = yield ToolUtils.regExec(content, /\.shardTable\([0-9]+\)/);
+            const matchText = yield ToolUtils.regExec(content, /\.ShardTable\([0-9]+\)/);
             const numberMatch = yield ToolUtils.regExec(matchText, /[0-9]+/);
             const shardCount = parseInt(numberMatch, 10);
             return shardCount;
