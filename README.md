@@ -207,7 +207,7 @@ DatabaseFactory.instance.initialize(databaseOptions, __dirname);
 
 ```
 \\ Write
-const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
+const EntityModule = DatabaseFactory.instance.getEntity(ShardEntity.name, shardKey);
 const entity = new EntityModule(shardKey);
 entity.tableId = shardKey;
 entity.tableDesc = shardKey.toString();
@@ -219,7 +219,7 @@ try {
 }
 
 \\ Read
-const EntityModule = DatabaseFactory.instance.getEntity('ShardEntity', shardKey);
+const EntityModule = DatabaseFactory.instance.getEntity(ShardEntity.name, shardKey);
 try {
   let result = await EntityModule.findOne({ tableId: shardKey });
   console.log(`read[${success}] success result = ${result}`);
