@@ -1,7 +1,7 @@
 import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
-import { fs_copy_file as copyFile } from 'fs-copy-file';
 
+const copyFile = require('fs-copy-file');
 const debug = require('debug')('SASDN-Database');
 
 export namespace ToolUtils {

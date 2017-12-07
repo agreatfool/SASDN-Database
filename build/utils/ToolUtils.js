@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const LibFs = require("mz/fs");
 const LibPath = require("path");
-const fs_copy_file_1 = require("fs-copy-file");
+const copyFile = require('fs-copy-file');
 const debug = require('debug')('SASDN-Database');
 var ToolUtils;
 (function (ToolUtils) {
@@ -82,7 +82,7 @@ var ToolUtils;
     ToolUtils.isCopyFile = isCopyFile;
     function fsCopy(src, dest) {
         return new Promise((resolve, reject) => {
-            fs_copy_file_1.fs_copy_file(src, dest, (err) => {
+            copyFile(src, dest, (err) => {
                 if (err) {
                     reject(err);
                 }
