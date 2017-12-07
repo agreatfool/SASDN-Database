@@ -38,14 +38,13 @@ async function read() {
     const EntityModule = DatabaseFactory.instance.getEntity(ShardEntity.name, shardKey);
     try {
       const result = await EntityModule.findOne({ tableId: shardKey });
-      console.log('read result = ', result);
       success++;
+      console.log(`read[${success}] result = ${result}`);
     } catch (error) {
       fail++;
       console.log('on save caught error = ', error);
     }
   }
-  console.log('total read success = ', success, '| fail = ', fail);
 }
 
 async function write() {
@@ -59,13 +58,12 @@ async function write() {
     entity.tableDesc = shardKey.toString();
     try {
       const result = await entity.save();
-      console.log('write result = ', result);
       success++;
+      console.log(`write[${success}] result = ${result}`);
     } catch (error) {
       fail++;
       console.log('on save caught error = ', error);
     }
-    console.log('total write success = ', success, '| fail = ', fail);
   }
 }
 
