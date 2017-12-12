@@ -107,7 +107,7 @@ export declare class DatabaseFactory {
    * @param {DatabaseOptions} option DatabaseOptions
    * @param {string} outputPath which path to create ConnectionMap.json
    */
-  initialize(option: DatabaseOptions, outputPath?: string): Promise<any>;
+  initialize(option: DatabaseOptions, outputPath?: string): Promise<Connection[]>;
   /**
    * Return Connection by Entity
    * @param {BaseOrmEntity} entity

@@ -150,6 +150,7 @@ class DatabaseFactory {
             else {
                 debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
             }
+            return connections;
         });
     }
     /**

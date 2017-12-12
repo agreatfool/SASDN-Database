@@ -111,7 +111,7 @@ export class DatabaseFactory {
    * @param {DatabaseOptions} option DatabaseOptions
    * @param {string} outputPath which path to create ConnectionMap.json
    */
-  async initialize(option: DatabaseOptions, outputPath?: string): Promise<any> {
+  async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
     const entitySet: Set<string> = new Set();
     for (const connectionOption of option.connectionList) {
       for (const entity of connectionOption.entities) {
@@ -157,6 +157,7 @@ export class DatabaseFactory {
     } else {
       debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
     }
+    return connections;
   }
 
   /**
