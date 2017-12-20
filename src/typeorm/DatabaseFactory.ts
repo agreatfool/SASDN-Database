@@ -178,8 +178,7 @@ export class DatabaseFactory {
     let className = typeof (entity) === 'function' ? entity.constructor.name : entity;
     const args = EntityStorage.instance.shardTableMetadataStorage[className];
     if (args) {
-      shardKey = shardKey === undefined ? '' : shardKey;
-      className = this.shardHashMap[className].get(shardKey);
+      className = shardKey === undefined ? `${className}_0` : this.shardHashMap[className].get(shardKey);
     }
     const filePath = EntityStorage.instance.shardTableFileStorage[className];
     if (filePath === undefined) {
