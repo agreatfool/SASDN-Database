@@ -44,6 +44,10 @@ export class DatabaseFactory {
     return this._entityToConnection;
   }
 
+  set context(ctx: object) {
+    this._context = ctx;
+  }
+
   /**
    * Read given path to find ShardTable then copy & rewrite shardTableEntity
    * @param {string | Function} entityPath

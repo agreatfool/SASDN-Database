@@ -14,6 +14,7 @@ export declare class DatabaseFactory {
     readonly entityToConnection: {
         [key: string]: string;
     };
+    context: object;
     /**
      * Read given path to find ShardTable then copy & rewrite shardTableEntity
      * @param {string | Function} entityPath
