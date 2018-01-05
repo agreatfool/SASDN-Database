@@ -100,9 +100,11 @@ class DatabaseFactory {
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions
+     * @param {ZipkinBase} zipkin optonal ZipkinProxy import by SASDN-Zipkin
+     * @param {object} ctx optional koa or grpc context
      * @param {string} outputPath which path to create ConnectionMap.json
      */
-    initialize(option, outputPath) {
+    initialize(option, zipkin, ctx, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const entitySet = new Set();
             for (const connectionOption of option.connectionList) {
@@ -110,6 +112,8 @@ class DatabaseFactory {
                     yield this._checkShardTable(entity, entitySet);
                 }
             }
+            this._zipkin = zipkin;
+            this._context = ctx;
             debug('Check ShardTable finish');
             const connections = yield typeorm_1.createConnections(option.connectionList);
             debug('Create connection finish');
@@ -159,7 +163,11 @@ class DatabaseFactory {
      */
     getConnection(entity) {
         const connectionName = this.entityToConnection[entity.name];
-        return typeorm_1.getConnectionManager().get(connectionName);
+        let conn = typeorm_1.getConnectionManager().get(connectionName);
+        if (this._zipkin !== undefined && this._context !== undefined) {
+            return this._zipkin.createClient(conn, this._context);
+        }
+        return conn;
     }
     /**
      * Get Entity by given className & shardKey

@@ -11,6 +11,7 @@ import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
 import { ToolUtils } from '../utils/ToolUtils';
 import { glob } from 'glob';
+import { ZipkinBase } from 'sasdn-zipkin';
 
 const HashRing = require('hashring');
 const debug = require('debug')('SASDN-Database');
@@ -23,6 +24,10 @@ export class DatabaseFactory {
   private readonly _entityToConnection: { [key: string]: string } = {};
 
   private readonly _shardHashMap: { [key: string]: any } = {};
+
+  private _zipkin: ZipkinBase;
+
+  private _context: object;
 
   static get instance(): DatabaseFactory {
     if (this._instance === undefined) {
@@ -109,15 +114,19 @@ export class DatabaseFactory {
   /**
    * Create Database by option
    * @param {DatabaseOptions} option DatabaseOptions
+   * @param {ZipkinBase} zipkin optonal ZipkinProxy import by SASDN-Zipkin
+   * @param {object} ctx optional koa or grpc context
    * @param {string} outputPath which path to create ConnectionMap.json
    */
-  async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
+  async initialize(option: DatabaseOptions, zipkin?: ZipkinBase, ctx?: object, outputPath?: string): Promise<LibOrmConnection[]> {
     const entitySet: Set<string> = new Set();
     for (const connectionOption of option.connectionList) {
       for (const entity of connectionOption.entities) {
         await this._checkShardTable(entity, entitySet);
       }
     }
+    this._zipkin = zipkin;
+    this._context = ctx;
     debug('Check ShardTable finish');
     const connections = await LibOrmCreateConnections(option.connectionList);
     debug('Create connection finish');
@@ -166,7 +175,11 @@ export class DatabaseFactory {
    */
   getConnection<T extends LibOrmBaseEntity>(entity: LibOrmObjectType<T>): LibOrmConnection {
     const connectionName = this.entityToConnection[(entity as any).name];
-    return LibOrmGetConnectionManager().get(connectionName);
+    let conn = LibOrmGetConnectionManager().get(connectionName);
+    if(this._zipkin !== undefined && this._context !== undefined) {
+      return this._zipkin.createClient(conn, this._context);
+    }
+    return conn;
   }
 
   /**
