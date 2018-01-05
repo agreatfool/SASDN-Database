@@ -44,7 +44,8 @@ export class DatabaseFactory {
     return this._entityToConnection;
   }
 
-  set context(ctx: object) {
+  updateZipkin(zipkin:ZipkinBase, ctx: object) {
+    this._zipkin = zipkin;
     this._context = ctx;
   }
 
@@ -122,15 +123,13 @@ export class DatabaseFactory {
    * @param {object} ctx optional koa or grpc context
    * @param {string} outputPath which path to create ConnectionMap.json
    */
-  async initialize(option: DatabaseOptions, zipkin?: ZipkinBase, ctx?: object, outputPath?: string): Promise<LibOrmConnection[]> {
+  async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
     const entitySet: Set<string> = new Set();
     for (const connectionOption of option.connectionList) {
       for (const entity of connectionOption.entities) {
         await this._checkShardTable(entity, entitySet);
       }
     }
-    this._zipkin = zipkin;
-    this._context = ctx;
     debug('Check ShardTable finish');
     const connections = await LibOrmCreateConnections(option.connectionList);
     debug('Create connection finish');

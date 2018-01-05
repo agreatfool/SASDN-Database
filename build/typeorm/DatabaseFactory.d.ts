@@ -14,7 +14,7 @@ export declare class DatabaseFactory {
     readonly entityToConnection: {
         [key: string]: string;
     };
-    context: object;
+    updateZipkin(zipkin: ZipkinBase, ctx: object): void;
     /**
      * Read given path to find ShardTable then copy & rewrite shardTableEntity
      * @param {string | Function} entityPath
@@ -28,7 +28,7 @@ export declare class DatabaseFactory {
      * @param {object} ctx optional koa or grpc context
      * @param {string} outputPath which path to create ConnectionMap.json
      */
-    initialize(option: DatabaseOptions, zipkin?: ZipkinBase, ctx?: object, outputPath?: string): Promise<LibOrmConnection[]>;
+    initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]>;
     /**
      * Return Connection by Entity
      * @param {BaseOrmEntity} entity

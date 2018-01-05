@@ -34,7 +34,8 @@ class DatabaseFactory {
     get entityToConnection() {
         return this._entityToConnection;
     }
-    set context(ctx) {
+    updateZipkin(zipkin, ctx) {
+        this._zipkin = zipkin;
         this._context = ctx;
     }
     /**
@@ -107,7 +108,7 @@ class DatabaseFactory {
      * @param {object} ctx optional koa or grpc context
      * @param {string} outputPath which path to create ConnectionMap.json
      */
-    initialize(option, zipkin, ctx, outputPath) {
+    initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const entitySet = new Set();
             for (const connectionOption of option.connectionList) {
@@ -115,8 +116,6 @@ class DatabaseFactory {
                     yield this._checkShardTable(entity, entitySet);
                 }
             }
-            this._zipkin = zipkin;
-            this._context = ctx;
             debug('Check ShardTable finish');
             const connections = yield typeorm_1.createConnections(option.connectionList);
             debug('Create connection finish');
