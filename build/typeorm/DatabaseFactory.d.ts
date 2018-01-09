@@ -1,9 +1,12 @@
 import { BaseEntity as LibOrmBaseEntity, Connection as LibOrmConnection, ObjectType as LibOrmObjectType } from 'typeorm';
 import { DatabaseOptions } from './interface/DatabaseOptions';
+import { ZipkinBase } from 'sasdn-zipkin';
 export declare class DatabaseFactory {
     private static _instance;
     private readonly _entityToConnection;
     private readonly _shardHashMap;
+    private _zipkin;
+    private _context;
     static readonly instance: DatabaseFactory;
     readonly shardHashMap: {
         [key: string]: any;
@@ -11,6 +14,7 @@ export declare class DatabaseFactory {
     readonly entityToConnection: {
         [key: string]: string;
     };
+    updateZipkin(zipkin: ZipkinBase, ctx: object): void;
     /**
      * Read given path to find ShardTable then copy & rewrite shardTableEntity
      * @param {string | Function} entityPath
@@ -20,6 +24,8 @@ export declare class DatabaseFactory {
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions
+     * @param {ZipkinBase} zipkin optonal ZipkinProxy import by SASDN-Zipkin
+     * @param {object} ctx optional koa or grpc context
      * @param {string} outputPath which path to create ConnectionMap.json
      */
     initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]>;

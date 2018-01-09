@@ -34,6 +34,10 @@ class DatabaseFactory {
     get entityToConnection() {
         return this._entityToConnection;
     }
+    updateZipkin(zipkin, ctx) {
+        this._zipkin = zipkin;
+        this._context = ctx;
+    }
     /**
      * Read given path to find ShardTable then copy & rewrite shardTableEntity
      * @param {string | Function} entityPath
@@ -100,6 +104,8 @@ class DatabaseFactory {
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions
+     * @param {ZipkinBase} zipkin optonal ZipkinProxy import by SASDN-Zipkin
+     * @param {object} ctx optional koa or grpc context
      * @param {string} outputPath which path to create ConnectionMap.json
      */
     initialize(option, outputPath) {
@@ -159,7 +165,11 @@ class DatabaseFactory {
      */
     getConnection(entity) {
         const connectionName = this.entityToConnection[entity.name];
-        return typeorm_1.getConnectionManager().get(connectionName);
+        let conn = typeorm_1.getConnectionManager().get(connectionName);
+        if (this._zipkin !== undefined && this._context !== undefined) {
+            return this._zipkin.createClient(conn, this._context);
+        }
+        return conn;
     }
     /**
      * Get Entity by given className & shardKey

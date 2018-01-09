@@ -6,6 +6,7 @@ import {
   Repository,
   ConnectionOptions 
 } from 'typeorm';
+import { ZipkinBase } from 'sasdn-zipkin';
 /**
  * Declare which Entity in which Connection.
  */
@@ -96,6 +97,7 @@ export declare class DatabaseFactory {
   readonly entityToConnection: {
       [key: string]: string;
   };
+  updateZipkin(zipkin: ZipkinBase, ctx: object): void;
   /**
    * Read given path to find ShardTable then copy & rewrite shardTableEntity
    * @param {string | Function} entityPath
@@ -105,9 +107,11 @@ export declare class DatabaseFactory {
   /**
    * Create Database by option
    * @param {DatabaseOptions} option DatabaseOptions
+   * @param {ZipkinBase} zipkin optonal ZipkinProxy import by SASDN-Zipkin
+   * @param {object} ctx optional koa or grpc context
    * @param {string} outputPath which path to create ConnectionMap.json
    */
-  initialize(option: DatabaseOptions, outputPath?: string): Promise<Connection[]>;
+  initialize(option: DatabaseOptions, zipkin?: ZipkinBase, ctx?: object, outputPath?: string): Promise<Connection[]>;
   /**
    * Return Connection by Entity
    * @param {BaseOrmEntity} entity
