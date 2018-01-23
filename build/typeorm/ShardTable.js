@@ -11,7 +11,9 @@ function ShardTable(shardCount) {
             shardCount,
             className: target.name,
         };
-        EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
+        if (args.className.indexOf('_') < 0) {
+            EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
+        }
     };
 }
 exports.ShardTable = ShardTable;
