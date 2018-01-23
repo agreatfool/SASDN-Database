@@ -11,7 +11,7 @@ export function ShardTable(shardCount: number): Function {
       shardCount,
       className: target.name,
     };
-    if(args.className.indexOf('_') < 0) {
+    if (args.className.indexOf('_') < 0) {
       EntityStorage.instance.shardTableMetadataStorage[target.name] = args;
     }
   };
