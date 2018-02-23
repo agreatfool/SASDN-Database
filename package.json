@@ -19,11 +19,11 @@
     "glob": "7.1.2",
     "hashring": "3.2.0",
     "mz": "2.7.0",
-    "sasdn-zipkin": "^1.0.4",
     "typeorm": "0.1.6"
   },
   "devDependencies": {
     "@types/mz": "0.0.32",
-    "@types/node": "8.0.53"
+    "@types/node": "8.0.53",
+    "sasdn-zipkin": "^1.0.7"
   }
 }
