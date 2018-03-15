@@ -15,12 +15,13 @@ const LibPath = require("path");
 const ToolUtils_1 = require("../utils/ToolUtils");
 const glob_1 = require("glob");
 const HashRing = require('hashring');
-const debug = require('debug')('SASDN-Database');
+const debug = require('debug')('SASDN:Database');
 class DatabaseFactory {
     constructor() {
         // Find connection by Entity's class name. Map<className, connectionName>
         this._entityToConnection = {};
         this._shardHashMap = {};
+        this._classMap = {};
     }
     static get instance() {
         if (this._instance === undefined) {
@@ -186,7 +187,13 @@ class DatabaseFactory {
         if (filePath === undefined) {
             throw new Error(`Can not found a Entity with name: ${className}`);
         }
-        return require(filePath)[className];
+        if (!this._classMap[className]) {
+            this._classMap[className] = require(filePath)[className];
+            if (!this._classMap[className]) {
+                throw new Error(`Can not require this Entity with name: ${className}`);
+            }
+        }
+        return this._classMap[className];
     }
 }
 exports.DatabaseFactory = DatabaseFactory;
