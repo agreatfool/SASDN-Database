@@ -76,10 +76,12 @@ export namespace ToolUtils {
 
   export async function copyNewFile(fileName: string,
                                     filePath: string, rootPath: string,
-                                    index: number): Promise<{ [key: string]: string }> {
+                                    index: number, needCopyFile?: boolean): Promise<{ [key: string]: string }> {
     const newFileName = `${fileName}_${index}`;
     const newFilePath = LibPath.join(rootPath, `${newFileName}.js`);
-    await fsCopy(filePath, newFilePath);
+    if (needCopyFile) {
+      await fsCopy(filePath, newFilePath);
+    }
     return { newFileName, newFilePath };
   }
 

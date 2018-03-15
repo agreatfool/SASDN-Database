@@ -44,7 +44,7 @@ class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    _checkShardTable(entityPath, classSet) {
+    _checkShardTable(entityPath, classSet, needWriteFile) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof (entityPath) === 'function') {
                 return;
@@ -84,10 +84,16 @@ class DatabaseFactory {
                 const classHash = new HashRing();
                 for (let i = 0; i < shardCount; i++) {
                     try {
+                        let newClassName = '';
                         // copy file
-                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i);
-                        // rewrite file
-                        const newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
+                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needWriteFile);
+                        if (needWriteFile) {
+                            // rewrite file
+                            newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
+                        }
+                        else {
+                            newClassName = `${className}_${i}`;
+                        }
                         classSet.add(newClassName);
                         classHash.add(newClassName);
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -112,11 +118,9 @@ class DatabaseFactory {
     initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const entitySet = new Set();
-            if (option.needCheckShard) {
-                for (const connectionOption of option.connectionList) {
-                    for (const entity of connectionOption.entities) {
-                        yield this._checkShardTable(entity, entitySet);
-                    }
+            for (const connectionOption of option.connectionList) {
+                for (const entity of connectionOption.entities) {
+                    yield this._checkShardTable(entity, entitySet, option.needCheckShard);
                 }
             }
             debug('Check ShardTable finish');

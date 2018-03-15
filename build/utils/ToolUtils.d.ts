@@ -8,7 +8,7 @@ export declare namespace ToolUtils {
     function getShardCount(content: string): Promise<number>;
     function isCopyFile(filePath: string): Promise<boolean>;
     function fsCopy(src: LibFs.PathLike, dest: LibFs.PathLike): Promise<any>;
-    function copyNewFile(fileName: string, filePath: string, rootPath: string, index: number): Promise<{
+    function copyNewFile(fileName: string, filePath: string, rootPath: string, index: number, needCopyFile?: boolean): Promise<{
         [key: string]: string;
     }>;
     function rewriteFile(className: string, content: string, newFilePath: string, index: number): Promise<string>;

@@ -1,9 +1,6 @@
 import {
-  BaseEntity as LibOrmBaseEntity,
-  Connection as LibOrmConnection,
-  createConnections as LibOrmCreateConnections,
-  getConnectionManager as LibOrmGetConnectionManager,
-  ObjectType as LibOrmObjectType,
+  BaseEntity as LibOrmBaseEntity, Connection as LibOrmConnection, createConnections as LibOrmCreateConnections,
+  getConnectionManager as LibOrmGetConnectionManager, ObjectType as LibOrmObjectType,
 } from 'typeorm';
 import { DatabaseOptions } from './interface/DatabaseOptions';
 import { EntityStorage } from './EntityStorage';
@@ -46,7 +43,7 @@ export class DatabaseFactory {
     return this._entityToConnection;
   }
 
-  updateZipkin(zipkin:ZipkinBase, ctx: object) {
+  updateZipkin(zipkin: ZipkinBase, ctx: object) {
     this._zipkin = zipkin;
     this._context = ctx;
   }
@@ -57,7 +54,7 @@ export class DatabaseFactory {
    * @param {Set<string>} classSet
    */
   private async _checkShardTable(entityPath: string | Function,
-                                 classSet: Set<string>): Promise<any> {
+                                 classSet: Set<string>, needWriteFile?: boolean): Promise<any> {
     if (typeof (entityPath) === 'function') {
       return;
     }
@@ -100,11 +97,16 @@ export class DatabaseFactory {
       const classHash = new HashRing();
       for (let i = 0; i < shardCount; i++) {
         try {
+          let newClassName = '';
           // copy file
           const { newFileName, newFilePath } = await ToolUtils.copyNewFile(
-            fileName, filePath, rootPath, i);
-          // rewrite file
-          const newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
+            fileName, filePath, rootPath, i, needWriteFile);
+          if (needWriteFile) {
+            // rewrite file
+            newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
+          } else {
+            newClassName = `${className}_${i}`;
+          }
           classSet.add(newClassName);
           classHash.add(newClassName);
           EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -127,11 +129,9 @@ export class DatabaseFactory {
    */
   async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
     const entitySet: Set<string> = new Set();
-    if (option.needCheckShard) {
-      for (const connectionOption of option.connectionList) {
-        for (const entity of connectionOption.entities) {
-          await this._checkShardTable(entity, entitySet);
-        }
+    for (const connectionOption of option.connectionList) {
+      for (const entity of connectionOption.entities) {
+        await this._checkShardTable(entity, entitySet, option.needCheckShard);
       }
     }
     debug('Check ShardTable finish');
@@ -169,7 +169,7 @@ export class DatabaseFactory {
     // if given outputPath then will write ConnectionMap to show [ connection => Entity ]
     if (outputPath && LibFs.statSync(outputPath).isDirectory()) {
       LibFs.writeFileSync(LibPath.join(outputPath, 'ConnectionMap.json')
-        ,                 JSON.stringify(connMap, null, 2));
+        , JSON.stringify(connMap, null, 2));
     } else {
       debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
     }
@@ -183,7 +183,7 @@ export class DatabaseFactory {
   getConnection<T extends LibOrmBaseEntity>(entity: LibOrmObjectType<T>): LibOrmConnection {
     const connectionName = this.entityToConnection[(entity as any).name];
     let conn = LibOrmGetConnectionManager().get(connectionName);
-    if(this._zipkin !== undefined && this._context !== undefined) {
+    if (this._zipkin !== undefined && this._context !== undefined) {
       return this._zipkin.createClient(conn, this._context);
     }
     return conn;

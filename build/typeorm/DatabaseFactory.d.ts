@@ -21,7 +21,7 @@ export declare class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    private _checkShardTable(entityPath, classSet);
+    private _checkShardTable(entityPath, classSet, needWriteFile?);
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions

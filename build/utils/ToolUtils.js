@@ -91,11 +91,13 @@ var ToolUtils;
         });
     }
     ToolUtils.fsCopy = fsCopy;
-    function copyNewFile(fileName, filePath, rootPath, index) {
+    function copyNewFile(fileName, filePath, rootPath, index, needCopyFile) {
         return __awaiter(this, void 0, void 0, function* () {
             const newFileName = `${fileName}_${index}`;
             const newFilePath = LibPath.join(rootPath, `${newFileName}.js`);
-            yield fsCopy(filePath, newFilePath);
+            if (needCopyFile) {
+                yield fsCopy(filePath, newFilePath);
+            }
             return { newFileName, newFilePath };
         });
     }
