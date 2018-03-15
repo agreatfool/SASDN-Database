@@ -127,9 +127,11 @@ export class DatabaseFactory {
    */
   async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
     const entitySet: Set<string> = new Set();
-    for (const connectionOption of option.connectionList) {
-      for (const entity of connectionOption.entities) {
-        await this._checkShardTable(entity, entitySet);
+    if (option.needCheckShard) {
+      for (const connectionOption of option.connectionList) {
+        for (const entity of connectionOption.entities) {
+          await this._checkShardTable(entity, entitySet);
+        }
       }
     }
     debug('Check ShardTable finish');

@@ -112,9 +112,11 @@ class DatabaseFactory {
     initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const entitySet = new Set();
-            for (const connectionOption of option.connectionList) {
-                for (const entity of connectionOption.entities) {
-                    yield this._checkShardTable(entity, entitySet);
+            if (option.needCheckShard) {
+                for (const connectionOption of option.connectionList) {
+                    for (const entity of connectionOption.entities) {
+                        yield this._checkShardTable(entity, entitySet);
+                    }
                 }
             }
             debug('Check ShardTable finish');
