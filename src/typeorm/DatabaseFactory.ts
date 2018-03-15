@@ -25,6 +25,8 @@ export class DatabaseFactory {
 
   private readonly _shardHashMap: { [key: string]: any } = {};
 
+  private readonly _classMap: { [key: string]: any } = {};
+
   private _zipkin: ZipkinBase;
 
   private _context: object;
@@ -200,6 +202,12 @@ export class DatabaseFactory {
     if (filePath === undefined) {
       throw new Error(`Can not found a Entity with name: ${className}`);
     }
-    return require(filePath)[className];
+    if (!this._classMap[className]) {
+      this._classMap[className] = require(filePath)[className];
+      if (!this._classMap[className]) {
+        throw new Error(`Can not require this Entity with name: ${className}`);
+      }
+    }
+    return this._classMap[className];
   }
 }

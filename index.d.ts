@@ -90,6 +90,7 @@ export declare class DatabaseFactory {
   private static _instance;
   private readonly _entityToConnection;
   private readonly _shardHashMap;
+  private readonly _classMap;
   static readonly instance: DatabaseFactory;
   readonly shardHashMap: {
       [key: string]: any;
