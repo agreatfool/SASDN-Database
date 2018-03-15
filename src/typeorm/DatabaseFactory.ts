@@ -14,7 +14,7 @@ import { glob } from 'glob';
 import { ZipkinBase } from 'sasdn-zipkin';
 
 const HashRing = require('hashring');
-const debug = require('debug')('SASDN-Database');
+const debug = require('debug')('SASDN:Database');
 
 export class DatabaseFactory {
 
