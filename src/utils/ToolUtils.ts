@@ -46,13 +46,13 @@ export namespace ToolUtils {
     return shardCount;
   }
 
-  export async function isCopyFile(filePath: string): Promise<boolean> {
+  export async function isCopyFile(filePath: string, needUnlink?: boolean): Promise<boolean> {
     const copyExp = /[a-zA-Z0-9]+_[0-9]+.js/;
     const copyMatch = copyExp.exec(filePath);
     if (copyMatch) {
       try {
         const stat = await LibFs.stat(filePath);
-        if (stat.isFile()) {
+        if (stat.isFile() && needUnlink) {
           await LibFs.unlink(filePath);
         }
       } catch (error) {

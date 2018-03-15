@@ -61,7 +61,7 @@ export class DatabaseFactory {
 
     const filePaths: string[] = glob.sync(entityPath);
     for (const filePath of filePaths) {
-      if (await ToolUtils.isCopyFile(filePath)) {
+      if (await ToolUtils.isCopyFile(filePath, needWriteFile)) {
         continue;
       }
 

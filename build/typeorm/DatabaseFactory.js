@@ -51,7 +51,7 @@ class DatabaseFactory {
             }
             const filePaths = glob_1.glob.sync(entityPath);
             for (const filePath of filePaths) {
-                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath)) {
+                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needWriteFile)) {
                     continue;
                 }
                 // find fileName

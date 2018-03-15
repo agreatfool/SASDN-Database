@@ -60,14 +60,14 @@ var ToolUtils;
         });
     }
     ToolUtils.getShardCount = getShardCount;
-    function isCopyFile(filePath) {
+    function isCopyFile(filePath, needUnlink) {
         return __awaiter(this, void 0, void 0, function* () {
             const copyExp = /[a-zA-Z0-9]+_[0-9]+.js/;
             const copyMatch = copyExp.exec(filePath);
             if (copyMatch) {
                 try {
                     const stat = yield LibFs.stat(filePath);
-                    if (stat.isFile()) {
+                    if (stat.isFile() && needUnlink) {
                         yield LibFs.unlink(filePath);
                     }
                 }

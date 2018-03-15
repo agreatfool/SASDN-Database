@@ -6,7 +6,7 @@ export declare namespace ToolUtils {
     function deleteAll(path: string): void;
     function getClassName(content: string): Promise<string>;
     function getShardCount(content: string): Promise<number>;
-    function isCopyFile(filePath: string): Promise<boolean>;
+    function isCopyFile(filePath: string, needUnlink?: boolean): Promise<boolean>;
     function fsCopy(src: LibFs.PathLike, dest: LibFs.PathLike): Promise<any>;
     function copyNewFile(fileName: string, filePath: string, rootPath: string, index: number, needCopyFile?: boolean): Promise<{
         [key: string]: string;
