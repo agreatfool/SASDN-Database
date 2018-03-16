@@ -44,14 +44,14 @@ class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    _checkShardTable(entityPath, classSet) {
+    _checkShardTable(entityPath, classSet, needGenFile) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof (entityPath) === 'function') {
                 return;
             }
             const filePaths = glob_1.glob.sync(entityPath);
             for (const filePath of filePaths) {
-                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath)) {
+                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needGenFile)) {
                     continue;
                 }
                 // find fileName
@@ -84,10 +84,16 @@ class DatabaseFactory {
                 const classHash = new HashRing();
                 for (let i = 0; i < shardCount; i++) {
                     try {
+                        let newClassName = '';
                         // copy file
-                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i);
-                        // rewrite file
-                        const newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
+                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needGenFile);
+                        if (needGenFile) {
+                            // rewrite file
+                            newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
+                        }
+                        else {
+                            newClassName = `${className}_${i}`;
+                        }
                         classSet.add(newClassName);
                         classHash.add(newClassName);
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -114,7 +120,7 @@ class DatabaseFactory {
             const entitySet = new Set();
             for (const connectionOption of option.connectionList) {
                 for (const entity of connectionOption.entities) {
-                    yield this._checkShardTable(entity, entitySet);
+                    yield this._checkShardTable(entity, entitySet, option.needCheckShard);
                 }
             }
             debug('Check ShardTable finish');

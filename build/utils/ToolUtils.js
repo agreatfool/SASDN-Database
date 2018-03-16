@@ -60,14 +60,14 @@ var ToolUtils;
         });
     }
     ToolUtils.getShardCount = getShardCount;
-    function isCopyFile(filePath) {
+    function isCopyFile(filePath, needUnlink) {
         return __awaiter(this, void 0, void 0, function* () {
             const copyExp = /[a-zA-Z0-9]+_[0-9]+.js/;
             const copyMatch = copyExp.exec(filePath);
             if (copyMatch) {
                 try {
                     const stat = yield LibFs.stat(filePath);
-                    if (stat.isFile()) {
+                    if (stat.isFile() && needUnlink) {
                         yield LibFs.unlink(filePath);
                     }
                 }
@@ -91,11 +91,13 @@ var ToolUtils;
         });
     }
     ToolUtils.fsCopy = fsCopy;
-    function copyNewFile(fileName, filePath, rootPath, index) {
+    function copyNewFile(fileName, filePath, rootPath, index, needCopyFile) {
         return __awaiter(this, void 0, void 0, function* () {
             const newFileName = `${fileName}_${index}`;
             const newFilePath = LibPath.join(rootPath, `${newFileName}.js`);
-            yield fsCopy(filePath, newFilePath);
+            if (needCopyFile) {
+                yield fsCopy(filePath, newFilePath);
+            }
             return { newFileName, newFilePath };
         });
     }

@@ -10,6 +10,10 @@ export interface DatabaseOptions {
      */
     readonly type: DatabaseType;
     /**
+     * Need check shard table or not
+     */
+    readonly needCheckShard?: boolean;
+    /**
      * Database cluster.
      */
     readonly connectionList: ConnectionOptions[];
