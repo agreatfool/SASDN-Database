@@ -44,14 +44,14 @@ class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    _checkShardTable(entityPath, classSet, needWriteFile) {
+    _checkShardTable(entityPath, classSet, needGenFile) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof (entityPath) === 'function') {
                 return;
             }
             const filePaths = glob_1.glob.sync(entityPath);
             for (const filePath of filePaths) {
-                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needWriteFile)) {
+                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needGenFile)) {
                     continue;
                 }
                 // find fileName
@@ -86,8 +86,8 @@ class DatabaseFactory {
                     try {
                         let newClassName = '';
                         // copy file
-                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needWriteFile);
-                        if (needWriteFile) {
+                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needGenFile);
+                        if (needGenFile) {
                             // rewrite file
                             newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
                         }

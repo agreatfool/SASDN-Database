@@ -54,14 +54,14 @@ export class DatabaseFactory {
    * @param {Set<string>} classSet
    */
   private async _checkShardTable(entityPath: string | Function,
-                                 classSet: Set<string>, needWriteFile?: boolean): Promise<any> {
+                                 classSet: Set<string>, needGenFile?: boolean): Promise<any> {
     if (typeof (entityPath) === 'function') {
       return;
     }
 
     const filePaths: string[] = glob.sync(entityPath);
     for (const filePath of filePaths) {
-      if (await ToolUtils.isCopyFile(filePath, needWriteFile)) {
+      if (await ToolUtils.isCopyFile(filePath, needGenFile)) {
         continue;
       }
 
@@ -100,8 +100,8 @@ export class DatabaseFactory {
           let newClassName = '';
           // copy file
           const { newFileName, newFilePath } = await ToolUtils.copyNewFile(
-            fileName, filePath, rootPath, i, needWriteFile);
-          if (needWriteFile) {
+            fileName, filePath, rootPath, i, needGenFile);
+          if (needGenFile) {
             // rewrite file
             newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
           } else {
