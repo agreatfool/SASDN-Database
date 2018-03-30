@@ -128,11 +128,13 @@ export class DatabaseFactory {
    * @param {string} outputPath which path to create ConnectionMap.json
    */
   async initialize(option: DatabaseOptions, outputPath?: string): Promise<LibOrmConnection[]> {
-    const _ = await LibOrmCreateConnections(option.connectionList);
-
     const entitySet: Set<string> = new Set();
     for (const connectionOption of option.connectionList) {
       for (const entity of connectionOption.entities) {
+        const filePaths: string[] = glob.sync(entity);
+        filePaths.forEach(filePath => {
+          const _ = require(filePath);
+        });
         await this._checkShardTable(entity, entitySet, option.needCheckShard);
       }
     }

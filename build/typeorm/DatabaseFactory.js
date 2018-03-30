@@ -117,10 +117,13 @@ class DatabaseFactory {
      */
     initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const _ = yield typeorm_1.createConnections(option.connectionList);
             const entitySet = new Set();
             for (const connectionOption of option.connectionList) {
                 for (const entity of connectionOption.entities) {
+                    const filePaths = glob_1.glob.sync(entity);
+                    filePaths.forEach(filePath => {
+                        const _ = require(filePath);
+                    });
                     yield this._checkShardTable(entity, entitySet, option.needCheckShard);
                 }
             }
