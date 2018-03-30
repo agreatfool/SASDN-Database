@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const LibFs = require("mz/fs");
 const LibPath = require("path");
+const EntityStorage_1 = require("../typeorm/EntityStorage");
 const copyFile = require('fs-copy-file');
 const debug = require('debug')('SASDN-Database');
 var ToolUtils;
@@ -51,8 +52,12 @@ var ToolUtils;
         });
     }
     ToolUtils.getClassName = getClassName;
-    function getShardCount(content) {
+    function getShardCount(content, className) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (className && EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[className]) {
+                const shardCount = EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[className].shardCount;
+                return shardCount;
+            }
             const matchText = yield regExec(content, /\.ShardTable\([0-9]+\)/);
             const numberMatch = yield regExec(matchText, /[0-9]+/);
             const shardCount = parseInt(numberMatch, 10);

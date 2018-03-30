@@ -87,7 +87,7 @@ export class DatabaseFactory {
       let shardCount = 0;
       try {
         // find sharding count
-        shardCount = await ToolUtils.getShardCount(content);
+        shardCount = await ToolUtils.getShardCount(content, className);
       } catch (error) {
         debug(`caught finding table error = ${error}`);
         continue;
@@ -131,6 +131,10 @@ export class DatabaseFactory {
     const entitySet: Set<string> = new Set();
     for (const connectionOption of option.connectionList) {
       for (const entity of connectionOption.entities) {
+        const filePaths: string[] = glob.sync(entity);
+        filePaths.forEach(filePath => {
+          const _ = require(filePath);
+        });
         await this._checkShardTable(entity, entitySet, option.needCheckShard);
       }
     }
