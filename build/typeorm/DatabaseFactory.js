@@ -74,7 +74,7 @@ class DatabaseFactory {
                 let shardCount = 0;
                 try {
                     // find sharding count
-                    shardCount = yield ToolUtils_1.ToolUtils.getShardCount(content);
+                    shardCount = yield ToolUtils_1.ToolUtils.getShardCount(content, className);
                 }
                 catch (error) {
                     debug(`caught finding table error = ${error}`);
@@ -117,6 +117,7 @@ class DatabaseFactory {
      */
     initialize(option, outputPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            const _ = yield typeorm_1.createConnections(option.connectionList);
             const entitySet = new Set();
             for (const connectionOption of option.connectionList) {
                 for (const entity of connectionOption.entities) {

@@ -5,7 +5,7 @@ export declare namespace ToolUtils {
     function regExec(str: string, regExp: RegExp): Promise<string>;
     function deleteAll(path: string): void;
     function getClassName(content: string): Promise<string>;
-    function getShardCount(content: string): Promise<number>;
+    function getShardCount(content: string, className?: string): Promise<number>;
     function isCopyFile(filePath: string, needUnlink?: boolean): Promise<boolean>;
     function fsCopy(src: LibFs.PathLike, dest: LibFs.PathLike): Promise<any>;
     function copyNewFile(fileName: string, filePath: string, rootPath: string, index: number, needCopyFile?: boolean): Promise<{

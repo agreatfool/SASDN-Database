@@ -1,5 +1,6 @@
 import * as LibFs from 'mz/fs';
 import * as LibPath from 'path';
+import { EntityStorage } from '../typeorm/EntityStorage';
 
 const copyFile = require('fs-copy-file');
 const debug = require('debug')('SASDN-Database');
@@ -39,7 +40,11 @@ export namespace ToolUtils {
     return className;
   }
 
-  export async function getShardCount(content: string): Promise<number> {
+  export async function getShardCount(content: string, className?: string): Promise<number> {
+    if (className && EntityStorage.instance.shardTableMetadataStorage[className]) {
+      const shardCount = EntityStorage.instance.shardTableMetadataStorage[className].shardCount;
+      return shardCount;
+    }
     const matchText = await regExec(content, /\.ShardTable\([0-9]+\)/);
     const numberMatch = await regExec(matchText, /[0-9]+/);
     const shardCount: number = parseInt(numberMatch, 10);
