@@ -28,6 +28,8 @@ export class DatabaseFactory {
 
   private _context: object;
 
+  private _connections: LibOrmConnection[];
+
   static get instance(): DatabaseFactory {
     if (this._instance === undefined) {
       this._instance = new DatabaseFactory();
@@ -139,7 +141,7 @@ export class DatabaseFactory {
       }
     }
     debug('Check ShardTable finish');
-    const connections = await LibOrmCreateConnections(option.connectionList);
+    this._connections = await LibOrmCreateConnections(option.connectionList);
     debug('Create connection finish');
     const connMap: any = {};
     if (option.shardingStrategies) {
@@ -159,8 +161,8 @@ export class DatabaseFactory {
     } else {
       const entitiesClass = [...entitySet];
       for (let i = 0; i < entitiesClass.length; i++) {
-        const index = (i + connections.length) % connections.length;
-        const connName = connections[index].name;
+        const index = (i + this._connections.length) % this._connections.length;
+        const connName = this._connections[index].name;
         const className = entitiesClass[i];
         this.entityToConnection[className] = connName;
         if (connMap[connName] === undefined) {
@@ -177,7 +179,7 @@ export class DatabaseFactory {
     } else {
       debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
     }
-    return connections;
+    return this._connections;
   }
 
   /**
@@ -215,5 +217,19 @@ export class DatabaseFactory {
       }
     }
     return this._classMap[className];
+  }
+
+  /**
+   * Close all connections
+   * @returns {Promise<void>}
+   */
+  async closeAllConnections(): Promise<void> {
+    if (!this._connections) {
+      return;
+    }
+
+    for (const connection of this._connections) {
+      await connection.close();
+    }
   }
 }

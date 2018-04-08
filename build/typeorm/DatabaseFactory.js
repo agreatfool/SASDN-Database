@@ -128,7 +128,7 @@ class DatabaseFactory {
                 }
             }
             debug('Check ShardTable finish');
-            const connections = yield typeorm_1.createConnections(option.connectionList);
+            this._connections = yield typeorm_1.createConnections(option.connectionList);
             debug('Create connection finish');
             const connMap = {};
             if (option.shardingStrategies) {
@@ -149,8 +149,8 @@ class DatabaseFactory {
             else {
                 const entitiesClass = [...entitySet];
                 for (let i = 0; i < entitiesClass.length; i++) {
-                    const index = (i + connections.length) % connections.length;
-                    const connName = connections[index].name;
+                    const index = (i + this._connections.length) % this._connections.length;
+                    const connName = this._connections[index].name;
                     const className = entitiesClass[i];
                     this.entityToConnection[className] = connName;
                     if (connMap[connName] === undefined) {
@@ -167,7 +167,7 @@ class DatabaseFactory {
             else {
                 debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
             }
-            return connections;
+            return this._connections;
         });
     }
     /**
@@ -204,6 +204,20 @@ class DatabaseFactory {
             }
         }
         return this._classMap[className];
+    }
+    /**
+     * Close all connections
+     * @returns {Promise<void>}
+     */
+    closeAllConnections() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this._connections) {
+                return;
+            }
+            for (const connection of this._connections) {
+                yield connection.close();
+            }
+        });
     }
 }
 exports.DatabaseFactory = DatabaseFactory;

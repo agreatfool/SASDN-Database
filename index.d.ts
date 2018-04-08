@@ -127,4 +127,10 @@ export declare class DatabaseFactory {
    * @param {string | number} shardKey
    */
   getEntity(entity: string | Function, shardKey?: string | number): any;
+
+  /**
+   * Close all connections
+   * @returns {Promise<void>}
+   */
+  closeAllConnections(): Promise<void>;
 }
