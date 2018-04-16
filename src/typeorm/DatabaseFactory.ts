@@ -135,7 +135,7 @@ export class DatabaseFactory {
           if (option.needCheckShard === false) {
             const baseName = LibPath.basename(filePath, '.js');
             if (baseName.indexOf('_') >= 0) {
-              EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+              entitySet.add(baseName);
             } else {
               const args = EntityStorage.instance.shardTableMetadataStorage[baseName];
               if (args) {
@@ -145,8 +145,11 @@ export class DatabaseFactory {
                   classHash.add(`${baseName}_${i}`);
                 });
                 this.shardHashMap[baseName] = classHash;
+              } else {
+                entitySet.add(baseName);
               }
             }
+            EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
           }
         });
         if (option.needCheckShard) {
