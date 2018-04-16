@@ -56,14 +56,14 @@ export class DatabaseFactory {
    * @param {Set<string>} classSet
    */
   private async _checkShardTable(entityPath: string | Function,
-                                 classSet: Set<string>, needGenFile?: boolean): Promise<any> {
+                                 classSet: Set<string>): Promise<any> {
     if (typeof (entityPath) === 'function') {
       return;
     }
 
     const filePaths: string[] = glob.sync(entityPath);
     for (const filePath of filePaths) {
-      if (await ToolUtils.isCopyFile(filePath, needGenFile)) {
+      if (await ToolUtils.isCopyFile(filePath)) {
         continue;
       }
 
@@ -102,13 +102,9 @@ export class DatabaseFactory {
           let newClassName = '';
           // copy file
           const { newFileName, newFilePath } = await ToolUtils.copyNewFile(
-            fileName, filePath, rootPath, i, needGenFile);
-          if (needGenFile) {
-            // rewrite file
-            newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
-          } else {
-            newClassName = `${className}_${i}`;
-          }
+            fileName, filePath, rootPath, i);
+          // rewrite file
+          newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
           classSet.add(newClassName);
           classHash.add(newClassName);
           EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -136,8 +132,26 @@ export class DatabaseFactory {
         const filePaths: string[] = glob.sync(entity);
         filePaths.forEach(filePath => {
           const _ = require(filePath);
+          if (option.needCheckShard === false) {
+            const baseName = LibPath.basename(filePath, '.js');
+            if (baseName.indexOf('_') >= 0) {
+              EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+            } else {
+              const args = EntityStorage.instance.shardTableMetadataStorage[baseName];
+              if (args) {
+                const { shardCount } = args;
+                const classHash = new HashRing();
+                Array(shardCount).forEach((v, i) => {
+                  classHash.add(`${baseName}_${i}`);
+                });
+                this.shardHashMap[baseName] = classHash;
+              }
+            }
+          }
         });
-        await this._checkShardTable(entity, entitySet, option.needCheckShard);
+        if (option.needCheckShard) {
+          await this._checkShardTable(entity, entitySet);
+        }
       }
     }
     debug('Check ShardTable finish');

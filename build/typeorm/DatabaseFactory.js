@@ -44,14 +44,14 @@ class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    _checkShardTable(entityPath, classSet, needGenFile) {
+    _checkShardTable(entityPath, classSet) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof (entityPath) === 'function') {
                 return;
             }
             const filePaths = glob_1.glob.sync(entityPath);
             for (const filePath of filePaths) {
-                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needGenFile)) {
+                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath)) {
                     continue;
                 }
                 // find fileName
@@ -86,14 +86,9 @@ class DatabaseFactory {
                     try {
                         let newClassName = '';
                         // copy file
-                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needGenFile);
-                        if (needGenFile) {
-                            // rewrite file
-                            newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
-                        }
-                        else {
-                            newClassName = `${className}_${i}`;
-                        }
+                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i);
+                        // rewrite file
+                        newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
                         classSet.add(newClassName);
                         classHash.add(newClassName);
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -123,8 +118,27 @@ class DatabaseFactory {
                     const filePaths = glob_1.glob.sync(entity);
                     filePaths.forEach(filePath => {
                         const _ = require(filePath);
+                        if (option.needCheckShard === false) {
+                            const baseName = LibPath.basename(filePath, '.js');
+                            if (baseName.indexOf('_') >= 0) {
+                                EntityStorage_1.EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+                            }
+                            else {
+                                const args = EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[baseName];
+                                if (args) {
+                                    const { shardCount } = args;
+                                    const classHash = new HashRing();
+                                    Array(shardCount).forEach((v, i) => {
+                                        classHash.add(`${baseName}_${i}`);
+                                    });
+                                    this.shardHashMap[baseName] = classHash;
+                                }
+                            }
+                        }
                     });
-                    yield this._checkShardTable(entity, entitySet, option.needCheckShard);
+                    if (option.needCheckShard) {
+                        yield this._checkShardTable(entity, entitySet);
+                    }
                 }
             }
             debug('Check ShardTable finish');

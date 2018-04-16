@@ -22,7 +22,7 @@ export declare class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    private _checkShardTable(entityPath, classSet, needGenFile?);
+    private _checkShardTable(entityPath, classSet);
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions
