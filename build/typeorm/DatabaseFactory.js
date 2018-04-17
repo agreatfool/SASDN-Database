@@ -44,14 +44,14 @@ class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    _checkShardTable(entityPath, classSet, needGenFile) {
+    _checkShardTable(entityPath, classSet) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof (entityPath) === 'function') {
                 return;
             }
             const filePaths = glob_1.glob.sync(entityPath);
             for (const filePath of filePaths) {
-                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath, needGenFile)) {
+                if (yield ToolUtils_1.ToolUtils.isCopyFile(filePath)) {
                     continue;
                 }
                 // find fileName
@@ -86,14 +86,9 @@ class DatabaseFactory {
                     try {
                         let newClassName = '';
                         // copy file
-                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i, needGenFile);
-                        if (needGenFile) {
-                            // rewrite file
-                            newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
-                        }
-                        else {
-                            newClassName = `${className}_${i}`;
-                        }
+                        const { newFileName, newFilePath } = yield ToolUtils_1.ToolUtils.copyNewFile(fileName, filePath, rootPath, i);
+                        // rewrite file
+                        newClassName = yield ToolUtils_1.ToolUtils.rewriteFile(className, content, newFilePath, i);
                         classSet.add(newClassName);
                         classHash.add(newClassName);
                         EntityStorage_1.EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -122,13 +117,36 @@ class DatabaseFactory {
                 for (const entity of connectionOption.entities) {
                     const filePaths = glob_1.glob.sync(entity);
                     filePaths.forEach(filePath => {
-                        const _ = require(filePath);
+                        if (option.needCheckShard === false) {
+                            const baseName = LibPath.basename(filePath, '.js');
+                            if (baseName.indexOf('_') >= 0) {
+                                entitySet.add(baseName);
+                            }
+                            else {
+                                const _ = require(filePath);
+                                const args = EntityStorage_1.EntityStorage.instance.shardTableMetadataStorage[baseName];
+                                if (args) {
+                                    const { shardCount } = args;
+                                    const classHash = new HashRing();
+                                    Array(shardCount).forEach((v, i) => {
+                                        classHash.add(`${baseName}_${i}`);
+                                    });
+                                    this.shardHashMap[baseName] = classHash;
+                                }
+                                else {
+                                    entitySet.add(baseName);
+                                }
+                            }
+                            EntityStorage_1.EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+                        }
                     });
-                    yield this._checkShardTable(entity, entitySet, option.needCheckShard);
+                    if (option.needCheckShard) {
+                        yield this._checkShardTable(entity, entitySet);
+                    }
                 }
             }
             debug('Check ShardTable finish');
-            const connections = yield typeorm_1.createConnections(option.connectionList);
+            this._connections = yield typeorm_1.createConnections(option.connectionList);
             debug('Create connection finish');
             const connMap = {};
             if (option.shardingStrategies) {
@@ -149,8 +167,8 @@ class DatabaseFactory {
             else {
                 const entitiesClass = [...entitySet];
                 for (let i = 0; i < entitiesClass.length; i++) {
-                    const index = (i + connections.length) % connections.length;
-                    const connName = connections[index].name;
+                    const index = (i + this._connections.length) % this._connections.length;
+                    const connName = this._connections[index].name;
                     const className = entitiesClass[i];
                     this.entityToConnection[className] = connName;
                     if (connMap[connName] === undefined) {
@@ -167,7 +185,7 @@ class DatabaseFactory {
             else {
                 debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
             }
-            return connections;
+            return this._connections;
         });
     }
     /**
@@ -204,6 +222,20 @@ class DatabaseFactory {
             }
         }
         return this._classMap[className];
+    }
+    /**
+     * Close all connections
+     * @returns {Promise<void>}
+     */
+    closeAllConnections() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this._connections) {
+                return;
+            }
+            for (const connection of this._connections) {
+                yield connection.close();
+            }
+        });
     }
 }
 exports.DatabaseFactory = DatabaseFactory;

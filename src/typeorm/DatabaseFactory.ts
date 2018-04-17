@@ -28,6 +28,8 @@ export class DatabaseFactory {
 
   private _context: object;
 
+  private _connections: LibOrmConnection[];
+
   static get instance(): DatabaseFactory {
     if (this._instance === undefined) {
       this._instance = new DatabaseFactory();
@@ -54,14 +56,14 @@ export class DatabaseFactory {
    * @param {Set<string>} classSet
    */
   private async _checkShardTable(entityPath: string | Function,
-                                 classSet: Set<string>, needGenFile?: boolean): Promise<any> {
+                                 classSet: Set<string>): Promise<any> {
     if (typeof (entityPath) === 'function') {
       return;
     }
 
     const filePaths: string[] = glob.sync(entityPath);
     for (const filePath of filePaths) {
-      if (await ToolUtils.isCopyFile(filePath, needGenFile)) {
+      if (await ToolUtils.isCopyFile(filePath)) {
         continue;
       }
 
@@ -100,13 +102,9 @@ export class DatabaseFactory {
           let newClassName = '';
           // copy file
           const { newFileName, newFilePath } = await ToolUtils.copyNewFile(
-            fileName, filePath, rootPath, i, needGenFile);
-          if (needGenFile) {
-            // rewrite file
-            newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
-          } else {
-            newClassName = `${className}_${i}`;
-          }
+            fileName, filePath, rootPath, i);
+          // rewrite file
+          newClassName = await ToolUtils.rewriteFile(className, content, newFilePath, i);
           classSet.add(newClassName);
           classHash.add(newClassName);
           EntityStorage.instance.shardTableFileStorage[newClassName] = newFilePath;
@@ -133,13 +131,34 @@ export class DatabaseFactory {
       for (const entity of connectionOption.entities) {
         const filePaths: string[] = glob.sync(entity);
         filePaths.forEach(filePath => {
-          const _ = require(filePath);
+          if (option.needCheckShard === false) {
+            const baseName = LibPath.basename(filePath, '.js');
+            if (baseName.indexOf('_') >= 0) {
+              entitySet.add(baseName);
+            } else {
+              const _ = require(filePath);
+              const args = EntityStorage.instance.shardTableMetadataStorage[baseName];
+              if (args) {
+                const { shardCount } = args;
+                const classHash = new HashRing();
+                Array(shardCount).forEach((v, i) => {
+                  classHash.add(`${baseName}_${i}`);
+                });
+                this.shardHashMap[baseName] = classHash;
+              } else {
+                entitySet.add(baseName);
+              }
+            }
+            EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+          }
         });
-        await this._checkShardTable(entity, entitySet, option.needCheckShard);
+        if (option.needCheckShard) {
+          await this._checkShardTable(entity, entitySet);
+        }
       }
     }
     debug('Check ShardTable finish');
-    const connections = await LibOrmCreateConnections(option.connectionList);
+    this._connections = await LibOrmCreateConnections(option.connectionList);
     debug('Create connection finish');
     const connMap: any = {};
     if (option.shardingStrategies) {
@@ -159,8 +178,8 @@ export class DatabaseFactory {
     } else {
       const entitiesClass = [...entitySet];
       for (let i = 0; i < entitiesClass.length; i++) {
-        const index = (i + connections.length) % connections.length;
-        const connName = connections[index].name;
+        const index = (i + this._connections.length) % this._connections.length;
+        const connName = this._connections[index].name;
         const className = entitiesClass[i];
         this.entityToConnection[className] = connName;
         if (connMap[connName] === undefined) {
@@ -177,7 +196,7 @@ export class DatabaseFactory {
     } else {
       debug(`Currect ConnectionMap = ${JSON.stringify(connMap, null, 2)}`);
     }
-    return connections;
+    return this._connections;
   }
 
   /**
@@ -215,5 +234,19 @@ export class DatabaseFactory {
       }
     }
     return this._classMap[className];
+  }
+
+  /**
+   * Close all connections
+   * @returns {Promise<void>}
+   */
+  async closeAllConnections(): Promise<void> {
+    if (!this._connections) {
+      return;
+    }
+
+    for (const connection of this._connections) {
+      await connection.close();
+    }
   }
 }

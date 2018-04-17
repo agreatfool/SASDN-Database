@@ -8,6 +8,7 @@ export declare class DatabaseFactory {
     private readonly _classMap;
     private _zipkin;
     private _context;
+    private _connections;
     static readonly instance: DatabaseFactory;
     readonly shardHashMap: {
         [key: string]: any;
@@ -21,7 +22,7 @@ export declare class DatabaseFactory {
      * @param {string | Function} entityPath
      * @param {Set<string>} classSet
      */
-    private _checkShardTable(entityPath, classSet, needGenFile?);
+    private _checkShardTable(entityPath, classSet);
     /**
      * Create Database by option
      * @param {DatabaseOptions} option DatabaseOptions
@@ -41,4 +42,9 @@ export declare class DatabaseFactory {
      * @param {string | number} shardKey
      */
     getEntity(entity: string | Function, shardKey?: string | number): any;
+    /**
+     * Close all connections
+     * @returns {Promise<void>}
+     */
+    closeAllConnections(): Promise<void>;
 }
