@@ -131,12 +131,12 @@ export class DatabaseFactory {
       for (const entity of connectionOption.entities) {
         const filePaths: string[] = glob.sync(entity);
         filePaths.forEach(filePath => {
-          const _ = require(filePath);
           if (option.needCheckShard === false) {
             const baseName = LibPath.basename(filePath, '.js');
             if (baseName.indexOf('_') >= 0) {
               entitySet.add(baseName);
             } else {
+              const _ = require(filePath);
               const args = EntityStorage.instance.shardTableMetadataStorage[baseName];
               if (args) {
                 const { shardCount } = args;
