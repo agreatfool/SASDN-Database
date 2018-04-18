@@ -150,6 +150,8 @@ export class DatabaseFactory {
               }
             }
             EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
+          } else {
+            const _ = require(filePath);
           }
         });
         if (option.needCheckShard) {
