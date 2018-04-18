@@ -139,6 +139,9 @@ class DatabaseFactory {
                             }
                             EntityStorage_1.EntityStorage.instance.shardTableFileStorage[baseName] = filePath;
                         }
+                        else {
+                            const _ = require(filePath);
+                        }
                     });
                     if (option.needCheckShard) {
                         yield this._checkShardTable(entity, entitySet);
