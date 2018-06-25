@@ -119,7 +119,7 @@ class DatabaseFactory {
                     filePaths.forEach(filePath => {
                         if (option.needCheckShard === false) {
                             const baseName = LibPath.basename(filePath, '.js');
-                            if (baseName.indexOf('_') >= 0) {
+                            if (baseName.search(/\_\d*\.js/) >= 0) {
                                 entitySet.add(baseName);
                             }
                             else {
@@ -128,9 +128,9 @@ class DatabaseFactory {
                                 if (args) {
                                     const { shardCount } = args;
                                     const classHash = new HashRing();
-                                    Array(shardCount).forEach((v, i) => {
+                                    for (let i = 0; i < shardCount; i++) {
                                         classHash.add(`${baseName}_${i}`);
-                                    });
+                                    }
                                     this.shardHashMap[baseName] = classHash;
                                 }
                                 else {
